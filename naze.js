@@ -84,8 +84,8 @@ module.exports = naze = async (naze, m, chatUpdate, store) => {
             let isNumber = x => typeof x === 'number' && !isNaN(x)
             let limitUser = isPremium ? global.limitawal.premium : global.limitawal.free
             
-            let user = global.db.data.user[m.sender]
-            if (typeof user !== 'object') global.db.data.user[m.sender] = {}
+            let user = global.db.data.users[m.sender]
+            if (typeof user !== 'object') global.db.data.users[m.sender] = {}
 
             if (user) {
                 if (!isNumber(user.afkTime)) user.afkTime = -1
