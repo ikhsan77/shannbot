@@ -670,7 +670,7 @@ Ketik *nyerah* untuk menyerah dan mengakui kekalahan`
                     await sleep(120000)
                     if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0])) {
                     console.log("Jawaban: " + result.jawaban)
-                    naze.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${tebakkalimat[m.sender.split('@')[0]]}` m)
+                    naze.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${tebakkalimat[m.sender.split('@')[0]]}`, m)
                     delete tebakkalimat[m.sender.split('@')[0]]
                     }
                 } else if (args[0] === 'lirik') {
