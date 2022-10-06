@@ -574,14 +574,6 @@ Ketik *nyerah* untuk menyerah dan mengakui kekalahan`
             }, 60000), poin, poin_lose, timeout
             }
             }
-            break
-	    case 'donasi': case 'sewabot': case 'sewa': case 'buypremium': case 'donate': {
-                naze.sendMessage(m.chat, { image: { url: 'https://telegra.ph/file/74fd634010128be37972c.jpg' }, caption: `*${ucapanWaktu} Kak ${m.pushName}*\n\n *Jika ingin berdonasi silahkan scan gambar diatas*\n\n*Atau klik link dibawah ini*\n_https://saweria.co/naze_\n\n*Atau Transfer via*\n- *Gopay Dana Ovo Qris ShopeePay*\n Ke nomer berikut : 082113821188\n\n_Terima kasih bagi yang sudah donasi_` }, { quoted: m })
-            }
-            break
-            case 'sc': {
-                m.reply('https://wa.me/6285822347348')
-            }
             break		 
             case 'chat': {
                 if (!isCreator) throw mess.owner
@@ -702,10 +694,10 @@ Ketik *nyerah* untuk menyerah dan mengakui kekalahan`
                     caklontong[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
 		    caklontong_desk[m.sender.split('@')[0]] = result.deskripsi
                     })
-                    await sleep(60000)
+                    await sleep(120000)
                     if (caklontong.hasOwnProperty(m.sender.split('@')[0])) {
                     console.log("Jawaban: " + result.jawaban)
-                    naze.sendButtonText(m.chat, [{ buttonId: 'tebak lontong', buttonText: { displayText: 'Tebak Lontong' }, type: 1 }], `Waktu Habis\nJawaban:  ${caklontong[m.sender.split('@')[0]]}\nDeskripsi : ${caklontong_desk[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, naze.user.name, m)
+                    naze.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${caklontong[m.sender.split('@')[0]]}\nDeskripsi : ${caklontong_desk[m.sender.split('@')[0]]}`, m)
                     delete caklontong[m.sender.split('@')[0]]
 		    delete caklontong_desk[m.sender.split('@')[0]]
                     }
