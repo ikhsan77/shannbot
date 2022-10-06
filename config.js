@@ -19,7 +19,7 @@ global.APIKeys = {
 }
 
 // Other
-global.owner = ['6285781183473', '6285781183473']
+global.owner = ['6285781183473', '6287872629912']
 global.ownernomer = "6285781183473"
 global.premium = ['6285875158363']
 global.packname = 'Fajarara'
