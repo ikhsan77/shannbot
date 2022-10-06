@@ -19,8 +19,8 @@ global.APIKeys = {
 }
 
 // Other
-global.owner = ['6285875158363']
-global.ownernomer = "6285875158363"
+global.owner = ['6285781183473']
+global.ownernomer = "6285781183473"
 global.premium = ['6285875158363']
 global.packname = 'Fajarara'
 global.author = '@Raasand_'
@@ -41,7 +41,7 @@ global.mess = {
 }
 global.limitawal = {
     premium: "Infinity",
-    free: 25
+    free: "Infinity"
 }
 global.thumb = fs.readFileSync('./lib/naze.png')
 global.vaze = { url: 'https://telegra.ph/file/15209657f9d4f59c7ca1e.mp4' }
