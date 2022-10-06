@@ -29,21 +29,21 @@ global.prefa = ['','!','.','#','&']
 global.sp = ''
 global.mess = {
     success: 'Done',
-    admin: 'Fitur Khusus Admin Group!',
+    admin: 'Admin Only',
     botAdmin: 'Bot Harus Menjadi Admin Terlebih Dahulu!',
     premime: 'Fitur Khusus Premium Kalo Mau Daftar Ketik Sewa',
-    owner: 'Fitur Khusus Owner Bot',
-    group: 'Fitur Digunakan Hanya Untuk Group!',
-    private: 'Fitur Digunakan Hanya Untuk Private Chat!',
+    owner: 'Owner Only',
+    group: 'Group Only',
+    private: 'Private Chat Only',
     bot: 'Fitur Khusus Pengguna Nomor Bot',
     wait: 'Loading...',
-    endLimit: 'Limit Harian Anda Telah Habis, Limit Akan Direset Setiap Jam 12',
+    endLimit: 'Limit habis',
 }
 global.limitawal = {
     premium: "Infinity",
     free: "Infinity"
 }
-global.thumb = fs.readFileSync('./lib/naze.png')
+global.thumb = fs.readFileSync('./lib/hisoka-moro.png')
 global.vaze = { url: 'https://telegra.ph/file/15209657f9d4f59c7ca1e.mp4' }
 
 let file = require.resolve(__filename)
