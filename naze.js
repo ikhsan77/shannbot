@@ -2770,25 +2770,6 @@ let alfamart = `628111500959@s.whatsapp.net`
 ╭──❍「 𝙄𝙉𝙁𝙊 𝙐𝙎𝙀𝙍 」❍
 ├ *Nama* : ${pushname}
 ├ *Number* : @${me.split('@')[0]}
-├ *Premium* : ${isPremium ? '✅' : `❌`}
-├ *Limit* : ${isPremium ? '♾Infinity' : `〽️${db.data.users[m.sender].limit}`}
-╰──❍
-
-╭──❍「 𝙄𝙉𝙁𝙊 𝘽𝙊𝙏 」❍
-├ *Nama Bot* : ${pushname}
-├ *Powered* : @${ini_mark.split('@')[0]}
-├ *Owner* : @${ownernya.split('@')[0]}
-├ *Mode* : ${naze.public ? 'Public' : `Self`}
-├ *Prefix* :「 MULTI-PREFIX 」
-├ *Total Hit* : ${jumlahcmd}
-├ *Total Hit Today* : ${jumlahharian}
-╰──❍
-
-╭──❍「 𝙄𝙉𝘿𝙊𝙉𝙀𝙎𝙄𝘼𝙉 𝙏𝙄𝙈𝙀 」❍
-├ *Hari Ini* : ${hariini}
-├ *Wib* : ${barat} WIB
-├ *Wita* : ${tengah} WITA
-├ *Wit* : ${timur} WIT
 ╰──❍`
             let ments = [ownernya, me, ini_mark]
             let buttons = [{ buttonId: 'allmenu', buttonText: { displayText: '📖List Menu' }, type: 1 },{ buttonId: 'rules', buttonText: { displayText: '❗Rules' }, type: 1 },{ buttonId: 'donasi', buttonText: { displayText: '🙏Donasi' }, type: 1 }]
@@ -2803,23 +2784,6 @@ let alfamart = `628111500959@s.whatsapp.net`
 ╭──❍「 𝙄𝙉𝙁𝙊 𝙐𝙎𝙀𝙍 」❍
 ├ *Nama* : ${pushname}
 ├ *Number* : ${me.split('@')[0]}
-├ *Premium* : ${isPremium ? '✅' : `❌`}
-├ *Limit* : ${isPremium ? '♾Infinity' : `〽️${db.data.users[m.sender].limit}`}
-╰──❍
-
-╭──❍「 𝙄𝙉𝙁𝙊 𝘽𝙊𝙏 」❍
-├ *Nama Bot* : ${pushname}
-├ *Mode* : ${naze.public ? 'Public' : `Self`}
-├ *Prefix* :「 MULTI-PREFIX 」
-├ *Total Hit* : ${jumlahcmd}
-├ *Total Hit Today* : ${jumlahharian}
-╰──❍
-
-╭──❍「 𝙄𝙉𝘿𝙊𝙉𝙀𝙎𝙄𝘼𝙉 𝙏𝙄𝙈𝙀 」❍
-├ *Hari Ini* : ${hariini}
-├ *Wib* : ${barat} WIB
-├ *Wita* : ${tengah} WITA
-├ *Wit* : ${timur} WIT
 ╰──❍`
                 let sections = [
                 {
