@@ -990,7 +990,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let id = args && /\d+\-\d+@g.us/.test(args[0]) ? args[0] : m.chat
                 let online = [...Object.keys(store.presences[id]), botNumber]
              
-                naze.sendText(m.chat, 'List Online:\n\n' + online.map(v => '⭔ @' + v.replace(/@.+/, '')).join`\n`, m, { mentions: online })
+                shann.sendText(m.chat, 'List Online:\n\n' + online.map(v => '⭔ @' + v.replace(/@.+/, '')).join`\n`, m, { mentions: online })
             }
             break
 
@@ -1000,12 +1000,12 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 if (/image/.test(mime)) {
                     let media = await quoted.download()
-                    let encmedia = await naze.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
+                    let encmedia = await shann.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
                     await fs.unlinkSync(encmedia)
                 } else if (/video/.test(mime)) {
                     if ((quoted.msg || quoted).seconds > 11) return m.reply('*Maksimal 10 detik!*')
                     let media = await quoted.download()
-                    let encmedia = await naze.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
+                    let encmedia = await shann.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
                     await fs.unlinkSync(encmedia)
                 } else {
                     throw `*Kirim Gambar/Video Dengan Caption* ${prefix + command}\nDurasi *Video 1-9 Detik*`
@@ -1037,7 +1037,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 let anu = await fetchJson(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`)
                 for (let res of anu.results) {
-                    let encmedia = await naze.sendImageAsSticker(m.chat, res.url, m, { packname: global.packname, author: global.author, categories: res.tags })
+                    let encmedia = await shann.sendImageAsSticker(m.chat, res.url, m, { packname: global.packname, author: global.author, categories: res.tags })
                     await fs.unlinkSync(encmedia)
                 }
             }
@@ -1045,7 +1045,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
             case 'attp': case 'ttp': {
                 if (!text) throw `Example : ${prefix + command} text`
-                await naze.sendMedia(m.chat, `https://xteam.xyz/${command}?file&text=${text}`, 'naze', 'morou', m, {asSticker: true})
+                await shann.sendMedia(m.chat, `https://xteam.xyz/${command}?file&text=${text}`, 'shann', 'morou', m, {asSticker: true})
             }
             break
 
@@ -1059,10 +1059,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 bawah = text.split('|')[1] ? text.split('|')[1] : '-'
                 
                 let { TelegraPh } = require('./lib/uploader')
-                let mee = await naze.downloadAndSaveMediaMessage(quoted)
+                let mee = await shann.downloadAndSaveMediaMessage(quoted)
                 let mem = await TelegraPh(mee)
                 let smeme = `https://api.memegen.link/images/custom/${encodeURIComponent(atas)}/${encodeURIComponent(bawah)}.png?background=${mem}`
-                let awikwok = await naze.sendImageAsSticker(m.chat, smeme, m, { packname: global.packname, author: global.auhor })
+                let awikwok = await shann.sendImageAsSticker(m.chat, smeme, m, { packname: global.packname, author: global.auhor })
                 await fs.unlinkSync(awikwok)
             }
             break
@@ -1072,14 +1072,14 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 if (!/webp/.test(mime)) throw `Balas sticker dengan caption *${prefix + command}*`
             
                 m.reply(mess.wait)
-                let media = await naze.downloadAndSaveMediaMessage(quoted)
+                let media = await shann.downloadAndSaveMediaMessage(quoted)
                 let ran = await getRandom('.png')
             
                 exec(`ffmpeg -i ${media} ${ran}`, (err) => {
                     fs.unlinkSync(media)
                     if (err) throw err
                     let buffer = fs.readFileSync(ran)
-                    naze.sendMessage(m.chat, { image: buffer }, { quoted: m })
+                    shann.sendMessage(m.chat, { image: buffer }, { quoted: m })
                     fs.unlinkSync(ran)
                 })
             }
@@ -1091,10 +1091,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 m.reply(mess.wait)
                 
                 let { webp2mp4File } = require('./lib/uploader')
-                let media = await naze.downloadAndSaveMediaMessage(quoted)
+                let media = await shann.downloadAndSaveMediaMessage(quoted)
                 let webpToMp4 = await webp2mp4File(media)
                 
-                await naze.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Convert Webp To Video' } }, { quoted: m })
+                await shann.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Convert Webp To Video' } }, { quoted: m })
                 await fs.unlinkSync(media)
             }
             break
@@ -1109,7 +1109,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let { toAudio } = require('./lib/converter')
                 let audio = await toAudio(media, 'mp4')
                 
-                naze.sendMessage(m.chat, {audio: audio, mimetype: 'audio/mpeg'}, { quoted : m })
+                shann.sendMessage(m.chat, {audio: audio, mimetype: 'audio/mpeg'}, { quoted : m })
             }
             break
 
@@ -1124,7 +1124,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let { toAudio } = require('./lib/converter')
                 let audio = await toAudio(media, 'mp4')
             
-                naze.sendMessage(m.chat, {document: audio, mimetype: 'audio/mpeg', fileName: `Convert By ${naze.user.name}.mp3`}, { quoted : m })
+                shann.sendMessage(m.chat, {document: audio, mimetype: 'audio/mpeg', fileName: `Convert By ${shann.user.name}.mp3`}, { quoted : m })
             }
             break
 
@@ -1138,7 +1138,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let { toPTT } = require('./lib/converter')
                 let audio = await toPTT(media, 'mp4')
             
-                naze.sendMessage(m.chat, {audio: audio, mimetype:'audio/mpeg', ptt:true }, {quoted:m})
+                shann.sendMessage(m.chat, {audio: audio, mimetype:'audio/mpeg', ptt:true }, {quoted:m})
             }
             break
 
@@ -1149,10 +1149,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 m.reply(mess.wait)
 		        
                 let { webp2mp4File } = require('./lib/uploader')
-                let media = await naze.downloadAndSaveMediaMessage(quoted)
+                let media = await shann.downloadAndSaveMediaMessage(quoted)
                 let webpToMp4 = await webp2mp4File(media)
             
-                await naze.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Convert Webp To Video' }, gifPlayback: true }, { quoted: m })
+                await shann.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Convert Webp To Video' }, gifPlayback: true }, { quoted: m })
                 await fs.unlinkSync(media)
             }
             break
@@ -1161,7 +1161,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 m.reply(mess.wait)
 		        
                 let { UploadFileUgu, webp2mp4File, TelegraPh } = require('./lib/uploader')
-                let media = await naze.downloadAndSaveMediaMessage(quoted)
+                let media = await shann.downloadAndSaveMediaMessage(quoted)
                 
                 if (/image/.test(mime)) {
                     let anu = await TelegraPh(media)
@@ -1185,7 +1185,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
                 
                 hmm = await './src/remobg-'+getRandom('')
-                localFile = await naze.downloadAndSaveMediaMessage(quoted, hmm)
+                localFile = await shann.downloadAndSaveMediaMessage(quoted, hmm)
                 outputFile = await './src/hremo-'+getRandom('.png')
                 m.reply(mess.wait)
                 
@@ -1197,7 +1197,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     scale: "100%",
                     outputFile 
                 }).then(async result => {
-                    naze.sendMessage(m.chat, {image: fs.readFileSync(outputFile), caption: mess.success}, { quoted : m })
+                    shann.sendMessage(m.chat, {image: fs.readFileSync(outputFile), caption: mess.success}, { quoted : m })
                     await fs.unlinkSync(localFile)
                     await fs.unlinkSync(outputFile)
                 })
@@ -1216,7 +1216,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     teks += `⭔ No : ${no++}\n⭔ Type : ${i.type}\n⭔ Video ID : ${i.videoId}\n⭔ Title : ${i.title}\n⭔ Views : ${i.views}\n⭔ Duration : ${i.timestamp}\n⭔ Upload At : ${i.ago}\n⭔ Author : ${i.author.name}\n⭔ Url : ${i.url}\n\n─────────────────\n\n`
                 }
                 
-                naze.sendMessage(m.chat, { image: { url: search.all[0].thumbnail },  caption: teks }, { quoted: m })
+                shann.sendMessage(m.chat, { image: { url: search.all[0].thumbnail },  caption: teks }, { quoted: m })
             }
             break
 
@@ -1236,12 +1236,12 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     caption: `*-------「 GIMAGE SEARCH 」-------*
 🤠 *Query* : ${text}
 🔗 *Media Url* : ${images}`,
-                    footer: naze.user.name,
+                    footer: shann.user.name,
                     buttons: buttons,
                     headerType: 4
                 }
                 
-                naze.sendMessage(m.chat, buttonMessage, { quoted: m })
+                shann.sendMessage(m.chat, buttonMessage, { quoted: m })
             }
             break
 
@@ -1288,12 +1288,12 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 ⭔ Channel : ${anu.author.url}
 ⭔ Description : ${anu.description}
 ⭔ Url : ${anu.url}`,
-                    footer: naze.user.name,
+                    footer: shann.user.name,
                     buttons: buttons,
                     headerType: 4
                 }
 
-                naze.sendMessage(m.chat, buttonMessage, { quoted: m })
+                shann.sendMessage(m.chat, buttonMessage, { quoted: m })
             }
             break
 
@@ -1307,8 +1307,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 if (media.filesize >= 100000) return m.reply('File Melebihi Batas '+util.format(media))
                 
-                naze.sendImage(m.chat, media.thumb, `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${isUrl(text)}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '128kbps'}`, m)
-                naze.sendMessage(m.chat, { audio: { url: media.dl_link }, mimetype: 'audio/mpeg', fileName: `${media.title}.mp3` }, { quoted: m })
+                shann.sendImage(m.chat, media.thumb, `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${isUrl(text)}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '128kbps'}`, m)
+                shann.sendMessage(m.chat, { audio: { url: media.dl_link }, mimetype: 'audio/mpeg', fileName: `${media.title}.mp3` }, { quoted: m })
             }
             break
 
@@ -1322,7 +1322,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 if (media.filesize >= 100000) return m.reply('File Melebihi Batas '+util.format(media))
                 
-                naze.sendMessage(m.chat, { video: { url: media.dl_link }, mimetype: 'video/mp4', fileName: `${media.title}.mp4`, caption: `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${isUrl(text)}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '360p'}` }, { quoted: m })
+                shann.sendMessage(m.chat, { video: { url: media.dl_link }, mimetype: 'video/mp4', fileName: `${media.title}.mp4`, caption: `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${isUrl(text)}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '360p'}` }, { quoted: m })
             }
             break
 
@@ -1342,8 +1342,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 if (media.filesize >= 100000) return m.reply('File Melebihi Batas '+util.format(media))
                 
-                naze.sendImage(m.chat, media.thumb, `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${urls[text - 1]}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '128kbps'}`, m)
-                naze.sendMessage(m.chat, { audio: { url: media.dl_link }, mimetype: 'audio/mpeg', fileName: `${media.title}.mp3` }, { quoted: m })
+                shann.sendImage(m.chat, media.thumb, `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${urls[text - 1]}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '128kbps'}`, m)
+                shann.sendMessage(m.chat, { audio: { url: media.dl_link }, mimetype: 'audio/mpeg', fileName: `${media.title}.mp3` }, { quoted: m })
             }
             break
 
@@ -1362,7 +1362,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let media = await ytv(urls[text - 1], quality)
                 
                 if (media.filesize >= 100000) return m.reply('File Melebihi Batas '+util.format(media))
-                naze.sendMessage(m.chat, { video: { url: media.dl_link }, mimetype: 'video/mp4', fileName: `${media.title}.mp4`, caption: `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${urls[text - 1]}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '360p'}` }, { quoted: m })
+                shann.sendMessage(m.chat, { video: { url: media.dl_link }, mimetype: 'video/mp4', fileName: `${media.title}.mp4`, caption: `⭔ Title : ${media.title}\n⭔ File Size : ${media.filesizeF}\n⭔ Url : ${urls[text - 1]}\n⭔ Ext : MP3\n⭔ Resolusi : ${args[1] || '360p'}` }, { quoted: m })
             }
             break
 
@@ -1373,7 +1373,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 anu = await pinterest(text)
                 result = anu[Math.floor(Math.random() * anu.length)]
-                naze.sendMessage(m.chat, { image: { url: result }, caption: '⭔ Media Url : '+result }, { quoted: m })
+                shann.sendMessage(m.chat, { image: { url: result }, caption: '⭔ Media Url : '+result }, { quoted: m })
             }
             break
 
@@ -1383,8 +1383,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let anu = await fetchJson('https://raw.githubusercontent.com/iamriz7/kopel_/main/kopel.json')
                 let random = anu[Math.floor(Math.random() * anu.length)]
             
-                naze.sendMessage(m.chat, { image: { url: random.male }, caption: `Couple Male` }, { quoted: m })
-                naze.sendMessage(m.chat, { image: { url: random.female }, caption: `Couple Female` }, { quoted: m })
+                shann.sendMessage(m.chat, { image: { url: random.male }, caption: `Couple Male` }, { quoted: m })
+                shann.sendMessage(m.chat, { image: { url: random.female }, caption: `Couple Female` }, { quoted: m })
             }
 	        break
 
@@ -1406,7 +1406,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     buttons: buttons,
                     headerType: 5
                 }
-                naze.sendMessage(m.chat, buttonMessage, { quoted: m })
+                shann.sendMessage(m.chat, buttonMessage, { quoted: m })
             }
             break
 
@@ -1428,8 +1428,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     headerType: 2
                 }
                 
-                let msg = await naze.sendMessage(m.chat, buttonMessage, { quoted: m })
-                naze.sendMessage(m.chat, { audio: { url: anu.result.nowm }, mimetype: 'audio/mpeg'}, { quoted: msg })
+                let msg = await shann.sendMessage(m.chat, buttonMessage, { quoted: m })
+                shann.sendMessage(m.chat, { audio: { url: anu.result.nowm }, mimetype: 'audio/mpeg'}, { quoted: msg })
             }
             break
 
@@ -1508,7 +1508,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 if (!isBaileys) throw 'Pesan tersebut bukan dikirim oleh bot!'
                 if (!isCreator) throw mess.owner
 
-                naze.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
+                shann.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
             }
             break
 
@@ -1519,9 +1519,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 if (!isAdmins) throw mess.admin
 
                 if (args[0] === 'close'){
-                    await naze.groupSettingUpdate(m.chat, 'announcement').then((res) => m.reply(`*Sukses Menutup Group*`)).catch((err) => m.reply(jsonformat(err)))
+                    await shann.groupSettingUpdate(m.chat, 'announcement').then((res) => m.reply(`*Sukses Menutup Group*`)).catch((err) => m.reply(jsonformat(err)))
                 } else if (args[0] === 'open'){
-                    await naze.groupSettingUpdate(m.chat, 'not_announcement').then((res) => m.reply(`*Sukses Membuka Group*`)).catch((err) => m.reply(jsonformat(err)))
+                    await shann.groupSettingUpdate(m.chat, 'not_announcement').then((res) => m.reply(`*Sukses Membuka Group*`)).catch((err) => m.reply(jsonformat(err)))
                 }
             }
             break
@@ -1551,11 +1551,11 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 if (args[0] === "on") {
                     if (db.data.chats[m.chat].mute) return m.reply(`Sudah Aktif Sebelumnya`)
                     db.data.chats[m.chat].mute = true
-                    m.reply(`${naze.user.name} telah di mute di group ini !`)
+                    m.reply(`${shann.user.name} telah di mute di group ini !`)
                 } else if (args[0] === "off") {
                     if (!db.data.chats[m.chat].mute) return m.reply(`Sudah Tidak Aktif Sebelumnya`)
                     db.data.chats[m.chat].mute = false
-                    m.reply(`${naze.user.name} telah di unmute di group ini !`)
+                    m.reply(`${shann.user.name} telah di unmute di group ini !`)
                 }
             }
             break
@@ -1564,8 +1564,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 if (!m.isGroup) throw mess.group
                 if (!isBotAdmins) throw mess.botAdmin
 
-                let response = await naze.groupInviteCode(m.chat)
-                naze.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\n👾Link Group : ${groupMetadata.subject}`, m, { detectLink: true })
+                let response = await shann.groupInviteCode(m.chat)
+                shann.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\n👾Link Group : ${groupMetadata.subject}`, m, { detectLink: true })
             }
             break
 
@@ -1688,7 +1688,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                naze.sendListMsg(m.chat, kukiw, nyoutube, `*Hello Kak ${pushname}*!`, `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMark, `*Hello Kak ${pushname}*!`, `Pilih Menu`, sections, m)
             }
             break
 
@@ -1718,7 +1718,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
                 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await naze.sendButtonText(m.chat, buttons, goup, shannMark, m)
+                await shann.sendButtonText(m.chat, buttons, goup, shannMark, m)
             }
             break
 
@@ -1737,7 +1737,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
                 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await naze.sendButtonText(m.chat, buttons, dwnloader, shannMark, m)
+                await shann.sendButtonText(m.chat, buttons, dwnloader, shannMark, m)
             }
             break
 
@@ -1755,7 +1755,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
                 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await naze.sendButtonText(m.chat, buttons, sarch, nyoutube, m)
+                await shann.sendButtonText(m.chat, buttons, sarch, shannMark, m)
             }
             break
 
@@ -1780,7 +1780,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
                 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await naze.sendButtonText(m.chat, buttons, mun, nyoutube, m)
+                await shann.sendButtonText(m.chat, buttons, mun, shannMark, m)
             }
             break
 
@@ -1808,7 +1808,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await naze.sendButtonText(m.chat, buttons, cnvert, nyoutube, m)
+                await shann.sendButtonText(m.chat, buttons, cnvert, shannMark, m)
             }
             break
 
@@ -1827,7 +1827,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 └───────⭓`
 
                 let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type:1 }]
-                await naze.sendButtonText(m.chat, buttons, oner, nyoutube, m)
+                await shann.sendButtonText(m.chat, buttons, oner, shannMark, m)
             }
             break
         }
