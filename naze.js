@@ -160,15 +160,15 @@ module.exports = naze = async (naze, m, chatUpdate, store) => {
         }
 
         // auto set bio
-        // if (db.data.settings[botNumber].autobio) {
-        //     let setting = global.db.data.settings[botNumber]
+        if (db.data.settings[botNumber].autobio) {
+            let setting = global.db.data.settings[botNumber]
 
-        //     if (new Date() * 1 - setting.status > 1000) {
-        //         let uptime = await runtime(process.uptime())
-        //         await naze.setStatus(`${naze.user.name} | Runtime : ${runtime(uptime)}`)
-        //         setting.status = new Date() * 1
-        //     }
-        // }
+            if (new Date() * 1 - setting.status > 1000) {
+                let uptime = await runtime(process.uptime())
+                await naze.setStatus(`${naze.user.name} | Runtime : ${runtime(uptime)}`)
+                setting.status = new Date() * 1
+            }
+        }
 
         // Antilink
         if (db.data.chats[m.chat].antilink) {
@@ -1830,6 +1830,77 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 await naze.sendButtonText(m.chat, buttons, oner, shannMark, m)
             }
             break
+
+            default:
+                if (budy.startsWith('=>')) {
+                    if (!isCreator) return m.reply(mess.owner)
+                    
+                    function Return(sul) {
+                        sat = JSON.stringify(sul, null, 2)
+                        bang = util.format(sat)
+                        if (sat == undefined) {
+                            bang = util.format(sul)
+                        }
+                        return m.reply(bang)
+                    }
+
+                    try {
+                        m.reply(util.format(eval(`(async () => { return ${budy.slice(3)} })()`)))
+                    } catch (e) {
+                        m.reply(String(e))
+                    }
+                }
+
+                if (budy.startsWith('>')) {
+                    if (!isCreator) return m.reply(mess.owner)
+                    
+                    try {
+                        let evaled = await eval(budy.slice(2))
+                        if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
+                        await m.reply(evaled)
+                    } catch (err) {
+                        await m.reply(String(err))
+                    }
+                }
+
+                if (budy.startsWith('$')) {
+                    if (!isCreator) return m.reply(mess.owner)
+                    exec(budy.slice(2), (err, stdout) => {
+                        if(err) return m.reply(err)
+                        if (stdout) return m.reply(stdout)
+                    })
+                }
+			
+		        if (m.chat.endsWith('@s.whatsapp.net') && isCmd) {
+                    this.anonymous = this.anonymous ? this.anonymous : {}
+                    let room = Object.values(this.anonymous).find(room => [room.a, room.b].includes(m.sender) && room.state === 'CHATTING')
+                    
+                    if (room) {
+                        if (/^.*(next|leave|start)/.test(m.text)) return
+                        if (['.next', '.leave', '.stop', '.start', 'Cari Partner', 'Keluar', 'Lanjut', 'Stop'].includes(m.text)) return
+                        let other = [room.a, room.b].find(user => user !== m.sender)
+                        m.copyNForward(other, true, m.quoted && m.quoted.fromMe ? {
+                            contextInfo: {
+                                ...m.msg.contextInfo,
+                                forwardingScore: 0,
+                                isForwarded: true,
+                                participant: other
+                            }
+                        } : {})
+                    }
+                    return !0
+                }
+			
+		        if (isCmd && budy.toLowerCase() != undefined) {
+                    if (m.chat.endsWith('broadcast')) return
+                    if (m.isBaileys) return
+                    
+                    let msgs = global.db.data.database
+                    
+                    if (!(budy.toLowerCase() in msgs)) return
+                    
+                    naze.copyNForward(m.chat, msgs[budy.toLowerCase()], true)
+		        }
         }
     } catch (err) {
         m.reply(util.format(err))
