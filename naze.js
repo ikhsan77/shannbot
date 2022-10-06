@@ -160,15 +160,15 @@ module.exports = naze = async (naze, m, chatUpdate, store) => {
         }
 
         // auto set bio
-        if (db.data.settings[botNumber].autobio) {
-            let setting = global.db.data.settings[botNumber]
+        // if (db.data.settings[botNumber].autobio) {
+        //     let setting = global.db.data.settings[botNumber]
 
-            if (new Date() * 1 - setting.status > 1000) {
-                let uptime = await runtime(process.uptime())
-                await naze.setStatus(`${naze.user.name} | Runtime : ${runtime(uptime)}`)
-                setting.status = new Date() * 1
-            }
-        }
+        //     if (new Date() * 1 - setting.status > 1000) {
+        //         let uptime = await runtime(process.uptime())
+        //         await naze.setStatus(`${naze.user.name} | Runtime : ${runtime(uptime)}`)
+        //         setting.status = new Date() * 1
+        //     }
+        // }
 
         // Antilink
         if (db.data.chats[m.chat].antilink) {
