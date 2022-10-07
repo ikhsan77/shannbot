@@ -30,20 +30,24 @@ const shannMark = ('© IKHSAN77')
 
 // Waktu
 const time2 = moment().tz('Asia/Jakarta').format('HH:mm:ss')
-if (time2 < "19:00:00") {
+if (time2 < "18:29:59") {
     var ucapanWaktu = "Selamat sore"
 }
 
-if (time2 < "15:00:00") {
+if (time2 < "14:59:59") {
     var ucapanWaktu = "Selamat siang"
 }
 
-if (time2 < "11:00:00") {
+if (time2 < "10:59:59") {
     var ucapanWaktu = "Selamat pagi"
 }
 
-if (time2 < "23:00:00") {
-    var ucapanWaktu = "Selamat Malam"
+if (time2 < "03:00:00") {
+    var ucapanWaktu = "Selamat malam"
+}
+
+if (time2 < "23:59:59") {
+    var ucapanWaktu = "Selamat malam"
 }
 
 // read database
