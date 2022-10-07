@@ -524,6 +524,11 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
         }
 
         switch (command) {
+	    case 'test' {
+	        m.reply('ok')
+	    }
+	    break
+	    
             case 'afk': {
                 let user = global.db.data.users[m.sender]
                 user.afkTime = + new Date
@@ -1649,9 +1654,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let me = m.sender
                 let ments = [ownernya, me, ini_mark]
                 let kukiw = `*${ucapanWaktu} Kak ${pushname}*!`
+		let shannMarks = `${time2}\n${shannMark}`
                 let sections = [
                     {
-                        title: "CHANGE MENU BOT",
+                        title: "MENU BOT",
                         rows: [
                             {title: "Group", rowId: `mgroup`, description: `👥Group Menu`},
                             {title: "Downloader", rowId: `mdownloader`, description: `📥Downloader Menu`},
@@ -1662,7 +1668,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                shann.sendListMsg(m.chat, kukiw, shannMark, '', `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMark, `Pilih Menu`, sections, m)
             }
             break
 
