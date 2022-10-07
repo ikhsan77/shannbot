@@ -1422,7 +1422,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 m.reply(mess.wait)
                 
                 let anu = await fetchJson(api('lolhuman', '/facebook2', { url: text }, 'apikey'))
-                naze.sendMessage(m.chat, { video: { url: anu.result }, caption: `Done`}, { quoted: m })
+                shann.sendMessage(m.chat, { video: { url: anu.result }, caption: `Done`}, { quoted: m })
             }
             break
 
@@ -1456,7 +1456,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 let anu = await fetchJson(api('lolhuman', '/jooxplay', { query: text }, 'apikey'))
                 
-                naze.sendMessage(m.chat, { audio: { url: anu.result.audio.link }, mimetype: 'audio/mpeg', fileName: anu.result.info.song+'.m4a' }, { quoted: m })
+                shann.sendMessage(m.chat, { audio: { url: anu.result.audio.link }, mimetype: 'audio/mpeg', fileName: anu.result.info.song+'.m4a' }, { quoted: m })
             }
             break
 
@@ -1467,10 +1467,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 if (/(?:\/p\/|\/reel\/|\/tv\/)([^\s&]+)/.test(isUrl(text)[0])) {
                     let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
-                    for (let media of anu.result) naze.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
+                    for (let media of anu.result) shann.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
                 } else if (/\/stories\/([^\s&]+)/.test(isUrl(text)[0])) {
                     let anu = await fetchJson(api('zenz', '/downloader/instastory', { url: isUrl(text)[0] }, 'apikey'))
-                    naze.sendFileUrl(m.chat, anu.result, `Download Url Instagram From ${isUrl(text)[0]}`, m)
+                    shann.sendFileUrl(m.chat, anu.result, `Download Url Instagram From ${isUrl(text)[0]}`, m)
                 }
             }
             break
