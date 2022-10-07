@@ -27,6 +27,8 @@ const timur = moment.tz('Asia/Jayapura').format('HH:mm:ss')
 const ini_mark = `0@s.whatsapp.net`
 
 const shannMark = ('© IKHSAN77')
+const hitAll = await fetchJson('https://api.countapi.xyz/hit/shann/visits')
+const hitHarian = await fetchJson(`https://api.countapi.xyz/hit/shann${moment.tz('Asia/Jakarta').format('DDMMYYYY')}/visits`)
 
 // Waktu
 const time2 = moment().tz('Asia/Jakarta').format('HH:mm:ss')
@@ -1654,6 +1656,14 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let me = m.sender
                 let ments = [ownernya, me, ini_mark]
                 let kukiw = `*${ucapanWaktu} Kak ${pushname}*!`
+		let kukiw2 = `
+┌──⭓ *JUST INFO*
+│
+│⭔ *Bot Name:* ${shann.user.name}
+│⭔ *Hit:* ${hitHariann.value}
+│⭔ *Total Hit:* ${hitAll.value}
+│
+└───────⭓`
 		let shannMarks = `${time2}\n${shannMark}`
                 let sections = [
                     {
@@ -1668,7 +1678,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                shann.sendListMsg(m.chat, kukiw, shannMark, `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMarks, kukiw2 `Pilih Menu`, sections, m)
             }
             break
 
