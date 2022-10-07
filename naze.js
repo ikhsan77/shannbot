@@ -1644,7 +1644,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let ownernya = ownernomer + '@s.whatsapp.net'
                 let me = m.sender
                 let ments = [ownernya, me, ini_mark]
-                let kukiw = ``
+                let kukiw = `*${ucapanWaktu} Kak ${pushname}*!`
                 let sections = [
                     {
                         title: "CHANGE MENU BOT",
@@ -1658,7 +1658,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                shann.sendListMsg(m.chat, kukiw, shannMark, `*${ucapanWaktu} Kak ${pushname}*!`, `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMark, '', `Pilih Menu`, sections, m)
             }
             break
 
