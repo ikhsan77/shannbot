@@ -1465,7 +1465,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
                 m.reply(mess.wait)
                 
-		xa.downloader.instagram(text).then(data => {
+		xfar.downloader.instagram(text).then(data => {
 			console.log(data)
 		});
             }
