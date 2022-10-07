@@ -1466,7 +1466,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 m.reply(mess.wait)
                 
 		let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
-	    	for (let media of anu.result[0) shann.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
+	    	for (let media of anu.result[0]) shann.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
             }
             break
 
