@@ -11,17 +11,19 @@ const chalk = require('chalk')
 // Website Api
 global.APIs = {
 	zenz: 'https://zenzapis.xyz',
+	lolhuman: 'https://api.lolhuman.xyz/api'
 }
 
 // Apikey Website Api
 global.APIKeys = {
 	'https://zenzapis.xyz': '0e92565522',
+	'https://api.lolhuman.xyz/api': 'SHANNBot-APIKEY'
 }
 
 // Other
 global.owner = ['6285781183473', '6287872629912']
 global.ownernomer = "6285781183473"
-global.premium = ['6285875158363']
+global.premium = ['6287872629912']
 global.packname = 'Fajarara'
 global.author = '@Raasand_'
 global.sessionName = 'nazedev'
