@@ -1465,9 +1465,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
                 m.reply(mess.wait)
                 
-		xfar.downloader.instagram(text).then(data => {
-			console.log(data)
-		});
+		let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
+		for (let media of anu.result) naze.sendFileUrl(m.chat, media, `Done`, m)
             }
             break
 
