@@ -1049,9 +1049,15 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             }
             break
 
-            case 'attp': case 'ttp': {
+            case 'ttp': {
                 if (!text) throw `Example : ${prefix + command} text`
-                await shann.sendMedia(m.chat, `https://xteam.xyz/${command}?file&text=${text}`, 'shann', 'morou', m, {asSticker: true})
+                await shann.sendMedia(m.chat, `https://shannbot.herokuapp.com/api/creator/ttp2?apikey=your_apikey&text=${text}`, 'shann', 'morou', m, {asSticker: true})
+            }
+            break
+			
+	    case 'attp': {
+                if (!text) throw `Example : ${prefix + command} text`
+                await shann.sendMedia(m.chat, `https://shannbot.herokuapp.com/api/creator/attp?apikey=your_apikey&text=${text}`, 'shann', 'morou', m, {asSticker: true})
             }
             break
 
