@@ -1678,7 +1678,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                shann.sendListMsg(m.chat, kukiw, shannMarks, kukiw2 `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMarks, kukiw2, `Pilih Menu`, sections, m)
             }
             break
 
