@@ -1392,21 +1392,21 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 shann.sendMessage(m.chat, { image: { url: random.male }, caption: `Couple Male` }, { quoted: m })
                 shann.sendMessage(m.chat, { image: { url: random.female }, caption: `Couple Female` }, { quoted: m })
             }
-	        break
+	    break
 
             case 'tiktok': case 'tiktoknowm': {
                 if (!text) throw 'Masukkan Query Link!'
                 
                 m.reply(mess.wait)
                 
-                let anu = await fetchJson(`https://anabotofc.herokuapp.com/api/download/tiktok2?url=${text}&apikey=AnaBot`)
+                let anu = await fetchJson(`https://shannbot.herokuapp.com/api/download/tiktok?apikey=your_apikey&url=${text}`)
                 
                 let buttons = [
-                    {buttonId: `tiktokmp3 ${text}`, buttonText: {displayText: '♫ Audio'}, type: 1}
+                    {buttonId: `tiktokmp3 ${text}`, buttonText: {displayText: 'mp3'}, type: 1}
                 ]
                 
                 let buttonMessage = {
-                    video: { url: anu.result.nowm },
+                    video: { url: anu.result.url },
                     caption: `Download From ${text}`,
                     footer: shannMark,
                     buttons: buttons,
@@ -1421,7 +1421,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
                 m.reply(mess.wait)
                 
-                let anu = await fetchJson(api('lolhuman', '/facebook2', { url: text }, 'apikey'))
+                let anu = await fetchJson(api('lolhuman', '/facebook', { url: text }, 'apikey'))
                 shann.sendMessage(m.chat, { video: { url: anu.result }, caption: `Done`}, { quoted: m })
             }
             break
@@ -1431,21 +1431,21 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 m.reply(mess.wait)
                 
-                let anu = await fetchJson(`https://anabotofc.herokuapp.com/api/download/tiktok2?url=${text}&apikey=AnaBot`)
+                let anu = await fetchJson(`https://shannbot.herokuapp.com/api/download/tiktok?apikey=your_apikey&url=${text}`)
                 
                 let buttons = [
-                    {buttonId: `tiktoknowm ${text}`, buttonText: {displayText: '► No Watermark'}, type: 1}
+                    {buttonId: `tiktok ${text}`, buttonText: {displayText: 'mp4'}, type: 1}
                 ]
                 
                 let buttonMessage = {
-                    text: `Download From ${text}`,
+                    text: `Done`,
                     footer: shannMark,
                     buttons: buttons,
                     headerType: 2
                 }
                 
                 let msg = await shann.sendMessage(m.chat, buttonMessage, { quoted: m })
-                shann.sendMessage(m.chat, { audio: { url: anu.result.nowm }, mimetype: 'audio/mpeg'}, { quoted: msg })
+                shann.sendMessage(m.chat, { audio: { url: anu.result.url }, mimetype: 'audio/mpeg'}, { quoted: msg })
             }
             break
 
@@ -1456,7 +1456,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 
                 let anu = await fetchJson(api('lolhuman', '/jooxplay', { query: text }, 'apikey'))
                 
-                shann.sendMessage(m.chat, { audio: { url: anu.result.audio.link }, mimetype: 'audio/mpeg', fileName: anu.result.info.song+'.m4a' }, { quoted: m })
+                shann.sendMessage(m.chat, { audio: { url: anu.result.audio[0].link }, mimetype: 'audio/mpeg', fileName: anu.result.info.song+'.m4a' }, { quoted: m })
             }
             break
 
@@ -1465,13 +1465,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
                 m.reply(mess.wait)
                 
-                if (/(?:\/p\/|\/reel\/|\/tv\/)([^\s&]+)/.test(isUrl(text)[0])) {
-                    let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
-                    for (let media of anu.result) shann.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
-                } else if (/\/stories\/([^\s&]+)/.test(isUrl(text)[0])) {
-                    let anu = await fetchJson(api('zenz', '/downloader/instastory', { url: isUrl(text)[0] }, 'apikey'))
-                    shann.sendFileUrl(m.chat, anu.result, `Download Url Instagram From ${isUrl(text)[0]}`, m)
-                }
+		let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
+	    	for (let media of anu.result[0) shann.sendFileUrl(m.chat, media, `Download Url Instagram From ${isUrl(text)[0]}`, m)
             }
             break
 
