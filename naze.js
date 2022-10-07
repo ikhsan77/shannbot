@@ -1660,7 +1660,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 ┌──⭓ *JUST INFO*
 │
 │⭔ *Bot Name:* ${shann.user.name}
-│⭔ *Hit:* ${hitHariann.value}
+│⭔ *Hit:* ${hitHarian.value}
 │⭔ *Total Hit:* ${hitAll.value}
 │
 └───────⭓`
