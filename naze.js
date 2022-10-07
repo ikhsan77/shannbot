@@ -524,7 +524,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
         }
 
         switch (command) {
-	    case 'test' {
+	    case 'test': {
 	        m.reply('ok')
 	    }
 	    break
