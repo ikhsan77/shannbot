@@ -1763,9 +1763,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 dwnloader = `
 ┌──⭓ *Downloader Menu*
 │
-│⭔ ${prefix}tiktoknowm [url]
+│⭔ ${prefix}tiktok [url]
 │⭔ ${prefix}tiktokmp3 [url]
-│⭔ ${prefix}facebook [url]
+│⭔ ${prefix}fb [url]
 │⭔ ${prefix}ytmp3 [url]
 │⭔ ${prefix}ytmp4 [url]
 │⭔ ${prefix}getmusic [query]
@@ -1784,6 +1784,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 │
 │⭔ ${prefix}play [query]
 │⭔ ${prefix}yts [query]
+│⭔ ${prefix}joox [query]
 │⭔ ${prefix}google [query]
 │⭔ ${prefix}gimage [query]
 │⭔ ${prefix}pinterest [query]
