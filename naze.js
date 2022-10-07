@@ -42,7 +42,7 @@ if (time2 < "11:00:00") {
     var ucapanWaktu = "Selamat pagi"
 }
 
-if (time2 < "01:00:00") {
+if (time2 < "23:00:00") {
     var ucapanWaktu = "Selamat Malam"
 }
 
@@ -1644,11 +1644,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 let ownernya = ownernomer + '@s.whatsapp.net'
                 let me = m.sender
                 let ments = [ownernya, me, ini_mark]
-                let kukiw = `*${ucapanWaktu}*\n
-╭──❍「 𝙄𝙉𝙁𝙊 𝙐𝙎𝙀𝙍 」❍
-├ *Nama* : ${pushname}
-├ *Number* : ${me.split('@')[0]}
-╰──❍`
+                let kukiw = ``
                 let sections = [
                     {
                         title: "CHANGE MENU BOT",
@@ -1662,7 +1658,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                         ]
                     },
                 ]
-                shann.sendListMsg(m.chat, kukiw, shannMark, `*Hello Kak ${pushname}*!`, `Pilih Menu`, sections, m)
+                shann.sendListMsg(m.chat, kukiw, shannMark, `*${ucapanWaktu} Kak ${pushname}*!`, `Pilih Menu`, sections, m)
             }
             break
 
