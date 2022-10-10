@@ -1,10 +1,3 @@
-/**
-   * Create By Dika Ardnt.
-   * Recode By Naze Dev
-   * Contact Me on wa.me/6282113821188
-   * Follow https://github.com/nazedev
-*/
-
 const fs = require('fs')
 const chalk = require('chalk')
 
