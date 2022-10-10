@@ -16,6 +16,7 @@ const { JSDOM } = require('jsdom')
 const speed = require('performance-now')
 const { performance } = require('perf_hooks')
 const { Primbon } = require('scrape-primbon')
+const scrappers = require('@bochilteam/scraper')
 const primbon = new Primbon()
 const { smsg, formatp, tanggal, formatDate, getTime, isUrl, sleep, clockString, runtime, fetchJson, getBuffer, jsonformat, format, parseMention, getRandom, getGroupAdmins } = require('./lib/myfunc')
 const { normalize } = require('path')
@@ -30,25 +31,24 @@ const shannMark = ('© IKHSAN77')
 
 // Waktu
 const time2 = moment().tz('Asia/Jakarta').format('HH:mm:ss')
-if (time2 < "18:29:59") {
-    var ucapanWaktu = "Selamat sore"
+if(time2 < "23:59:00"){
+    var ucapanWaktu = 'Selamat malam'
 }
-
-if (time2 < "14:59:59") {
-    var ucapanWaktu = "Selamat siang"
+if(time2 < "19:00:00"){
+    var ucapanWaktu = 'Selamat sore'
 }
-
-if (time2 < "10:59:59") {
-    var ucapanWaktu = "Selamat pagi"
+if(time2 < "18:00:00"){
+    var ucapanWaktu = 'Selamat sore'
 }
-
-if (time2 < "03:00:00") {
-    var ucapanWaktu = "Selamat malam"
+if(time2 < "15:00:00"){
+    var ucapanWaktu = 'Selamat siang'
 }
-
-if (time2 < "23:59:59") {
-    var ucapanWaktu = "Selamat malam"
+if(time2 < "11:00:00"){
+    var ucapanWaktu = 'Selamat pagi'
 }
+if(time2 < "05:00:00"){
+    var ucapanWaktu = 'Selamat pagi'
+} 
 
 // read database
 let tebaklagu = db.data.game.tebaklagu = []
@@ -232,14 +232,14 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             if (!isSurender) {
                 let index = room.jawaban.findIndex(v => v.toLowerCase().replace(/[^\w\s\-]+/, '') === teks)
                 if (room.terjawab[index]) return !0
-                room.terjawab[index] = m.sender
+                room.terjawab[index] = `@${pushname}`
             }
 
             let isWin = room.terjawab.length === room.terjawab.filter(v => v).length
             let caption = `Jawablah Pertanyaan Berikut :\n${room.soal}\n\n\nTerdapat ${room.jawaban.length} Jawaban ${room.jawaban.find(v => v.includes(' ')) ? `(beberapa Jawaban Terdapat Spasi)` : ''}
-            ${isWin ? `Semua Jawaban Terjawab` : isSurender ? 'Menyerah!' : ''}
-            ${Array.from(room.jawaban, (jawaban, index) => {
-                return isSurender || room.terjawab[index] ? `(${index + 1}) ${jawaban} ${room.terjawab[index] ? '@' + room.terjawab[index].split('@')[0] : ''}`.trim() : false
+${isWin ? `Semua Jawaban Terjawab` : isSurender ? 'Menyerah!' : ''}
+${Array.from(room.jawaban, (jawaban, index) => {
+                return isSurender || room.terjawab[index] ? `(${index + 1}) ${jawaban} ${room.terjawab[index] ? room.terjawab[index] : ''}`.trim() : false
             }).filter(v => v).join('\n')}
             ${isSurender ? '' : ``}`.trim()
         
@@ -247,13 +247,27 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             if (isWin || isSurender) delete _family100['family100'+m.chat]
         }
 
-        if (tebaklagu.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
+        if (('caklontong'+m.chat in caklontong) && isCmd) {
             kuis = true
-            jawaban = tebaklagu[m.sender.split('@')[0]]
+            jawaban = caklontong['caklontong'+m.chat]
+            deskripsi = caklontong_desk['caklontong'+m.chat]
+
+            if (budy.toLowerCase() == jawaban) {
+                await m.reply('*Benar!*')
+                delete caklontong['caklontong'+m.chat]
+                delete caklontong_desk['caklontong'+m.chat]
+            } else {
+                m.reply('*Salah!*')
+            }
+        }
+
+        if (('tebaklagu'+m.chat in tebaklagu) && isCmd) {
+            kuis = true
+            jawaban = tebaklagu['tebaklagu'+m.chat]
 
             if (budy.toLowerCase() == jawaban) {
                 await m.reply(`*Benar!*`)
-                delete tebaklagu[m.sender.split('@')[0]]
+                delete tebaklagu['tebaklagu'+m.chat]
             } else {
                 m.reply('*Salah!*')
             } 
@@ -290,20 +304,6 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             if (budy.toLowerCase() == jawaban) {
                 await m.reply(`*Benar!*`)
                 delete tebakkata[m.sender.split('@')[0]]
-            } else {
-                m.reply('*Salah!*')
-            }
-        }
-
-        if (caklontong.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-            kuis = true
-            jawaban = caklontong[m.sender.split('@')[0]]
-	        deskripsi = caklontong_desk[m.sender.split('@')[0]]
-
-            if (budy.toLowerCase() == jawaban) {
-                await m.reply(`*Benar!*`)
-                delete caklontong[m.sender.split('@')[0]]
-		        delete caklontong_desk[m.sender.split('@')[0]]
             } else {
                 m.reply('*Salah!*')
             }
@@ -524,10 +524,10 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
         }
 
         switch (command) {
-	    case 'test': {
-	        m.reply('ok')
-	    }
-	    break
+            case 'test': {
+                m.reply('ok')
+            }
+            break
 	    
             case 'afk': {
                 let user = global.db.data.users[m.sender]
@@ -538,11 +538,11 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'ttc': case 'ttt': case 'tictactoe': {
-                if (!m.isGroup) throw mess.group
+                if (!m.isGroup) return m.reply(mess.group)
                 let TicTacToe = require("./lib/tictactoe")
                 this.game = this.game ? this.game : {}
 
-                if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) throw 'Kamu masih didalam game'
+                if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) return m.reply('Kamu masih didalam game')
                 let room = Object.values(this.game).find(room => room.state === 'WAITING' && (text ? room.name === text : true))
                 
                 if (room) {
@@ -600,7 +600,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                     } else if (!this.game) {
                         m.reply(`Session TicTacToe🎮 tidak ada`)
                     } else {
-                        throw '?'
+                        m.reply('?')
                     }
                 } catch (e) {
                     m.reply('rusak')
@@ -617,7 +617,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                 if (Object.values(this.suit).find(roof => roof.id.startsWith('suit') && [roof.p, roof.p2].includes(m.sender))) m.reply(`Selesaikan suit mu yang sebelumnya`)
                 if (m.mentionedJid[0] === m.sender) return m.reply(`Tidak bisa bermain dengan diri sendiri !`)
                 if (!m.mentionedJid[0]) return m.reply(`_Siapa yang ingin kamu tantang?_\nTag orangnya..\n\nContoh : ${prefix}suit @${owner[1]}`, m.chat, { mentions: [owner[1] + '@s.whatsapp.net'] })
-                if (Object.values(this.suit).find(roof => roof.id.startsWith('suit') && [roof.p, roof.p2].includes(m.mentionedJid[0]))) throw `Orang yang kamu tantang sedang bermain suit bersama orang lain :(`
+                if (Object.values(this.suit).find(roof => roof.id.startsWith('suit') && [roof.p, roof.p2].includes(m.mentionedJid[0]))) return m.reply(`Orang yang kamu tantang sedang bermain suit bersama orang lain :(`)
                 
                 let id = 'suit_' + new Date() * 1
                 let caption = `_*SUIT PvP*_
@@ -640,10 +640,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'family100': {
-                if ('family100'+m.chat in _family100) {
-                    m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
-                    throw false
-                }
+                if ('family100'+m.chat in _family100) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                 let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/family100.json')
                 let random = anu[Math.floor(Math.random() * anu.length)]
@@ -659,8 +656,27 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             }
             break
 
+            case 'caklontong': {
+                if ('caklontong'+m.chat in caklontong) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
+
+                let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/caklontong.json')
+                let result = anu[Math.floor(Math.random() * anu.length)]
+
+                shann.sendText(m.chat, `${result.soal}*\n\nWaktu : 2 Menit`, m).then(() => {
+                    caklontong['caklontong'+m.chat] = result.jawaban.toLowerCase()
+                    caklontong_desk['caklontong'+m.chat] = result.deskripsi
+                })
+
+                await sleep(120000)
+                if ('caklontong'+m.chat) {
+                    shann.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${caklontong['caklontong'+m.chat]}\nDeskripsi : ${caklontong_desk['caklontong'+m.chat]}`, m)
+                    delete caklontong['caklontong'+m.chat]
+                    delete caklontong_desk['caklontong'+m.chat]
+                }
+            }
+
             case 'halah': case 'hilih': case 'huluh': case 'heleh': case 'holoh': {
-                if (!m.quoted && !text) throw `Kirim/reply text dengan caption ${prefix + command}`
+                if (!m.quoted && !text) return m.reply(`Kirim/reply text dengan caption ${prefix + command}`)
 
                 ter = command[1].toLowerCase()
                 tex = m.quoted ? m.quoted.text ? m.quoted.text : q ? q : m.text : q ? q : m.text
@@ -669,27 +685,26 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'tebak': {
-                if (!text) throw `Example : ${prefix + command} lagu\n\nOption : \n1. lagu\n2. gambar\n3. kata\n4. kalimat\n5. lirik\n6.lontong`
+                if (!text) return m.reply(`Example : ${prefix + command} gamber\n\nOption : \n1. lagu\n2. gambar\n3. kata\n4. kalimat\n5. lirik`)
 
                 if (args[0] === "lagu") {
-                    if (tebaklagu.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
-
+                    if ('tebaklagu'+m.chat in tebaklagu) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
+    
                     let anu = await fetchJson('https://fatiharridho.github.io/tebaklagu.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
                     let msg = await shann.sendMessage(m.chat, { audio: { url: result.link_song }, mimetype: 'audio/mpeg' }, { quoted: m })
-
+    
                     shann.sendText(m.chat, `Lagu Tersebut Adalah Lagu dari?\n\nArtist : ${result.artist}\nWaktu : 2 Menit`, msg).then(() => {
-                        tebaklagu[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
+                        tebaklagu['tebaklagu'+m.chat] = result.jawaban.toLowerCase()
                     })
-
+    
                     await sleep(120000)
-                    if (tebaklagu.hasOwnProperty(m.sender.split('@')[0])) {
-                        console.log("Jawaban: " + result.jawaban)
-                        shann.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${tebaklagu[m.sender.split('@')[0]]}`, m)
-                        delete tebaklagu[m.sender.split('@')[0]]
+                    if ('tebaklagu'+m.chat) {
+                        shann.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${tebaklagu['tebaklagu'+m.chat]}`, m)
+                        delete tebaklagu['tebaklagu'+m.chat]
                     }
                 } else if (args[0] === 'gambar') {
-                    if (tebakgambar.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
+                    if (tebakgambar.hasOwnProperty(m.sender.split('@')[0])) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                     let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakgambar.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
@@ -705,7 +720,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                         delete tebakgambar[m.sender.split('@')[0]]
                     }
                 } else if (args[0] === 'kata') {
-                    if (tebakkata.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
+                    if (tebakkata.hasOwnProperty(m.sender.split('@')[0])) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                     let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakkata.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
@@ -721,7 +736,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                         delete tebakkata[m.sender.split('@')[0]]
                     }
                 } else if (args[0] === 'kalimat') {
-                    if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
+                    if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0])) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                     let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakkalimat.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
@@ -737,7 +752,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                         delete tebakkalimat[m.sender.split('@')[0]]
                     }
                 } else if (args[0] === 'lirik') {
-                    if (tebaklirik.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
+                    if (tebaklirik.hasOwnProperty(m.sender.split('@')[0])) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                     let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebaklirik.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
@@ -752,33 +767,15 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
                         shann.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${tebaklirik[m.sender.split('@')[0]]}`, m)
                         delete tebaklirik[m.sender.split('@')[0]]
                     }
-                } else if (args[0] === 'lontong') {
-                    if (caklontong.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
-
-                    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/caklontong.json')
-                    let result = anu[Math.floor(Math.random() * anu.length)]
-
-                    shann.sendText(m.chat, `${result.soal}*\n\nWaktu : 2 Menit`, m).then(() => {
-                        caklontong[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-		                caklontong_desk[m.sender.split('@')[0]] = result.deskripsi
-                    })
-
-                    await sleep(120000)
-                    if (caklontong.hasOwnProperty(m.sender.split('@')[0])) {
-                        console.log("Jawaban: " + result.jawaban)
-                        shann.sendText(m.chat, `*Waktu Habis*\n\nJawaban:  ${caklontong[m.sender.split('@')[0]]}\nDeskripsi : ${caklontong_desk[m.sender.split('@')[0]]}`, m)
-                        delete caklontong[m.sender.split('@')[0]]
-            		    delete caklontong_desk[m.sender.split('@')[0]]
-                    }
                 }
             }
             break
 
             case 'kuismath': case 'math': {
-                if (kuismath.hasOwnProperty(m.sender.split('@')[0])) throw "Masih Ada Sesi Yang Belum Diselesaikan!"
+                if (kuismath.hasOwnProperty(m.sender.split('@')[0])) return m.reply('Masih Ada Sesi Yang Belum Diselesaikan!')
 
                 let { genMath, modes } = require('./src/math')
-                if (!text) throw `Mode: ${Object.keys(modes).join(' | ')}\nContoh penggunaan: ${prefix}math medium`
+                if (!text) return m.reply(`Mode: ${Object.keys(modes).join(' | ')}\nContoh penggunaan: ${prefix}math medium`)
 
                 let result = await genMath(text.toLowerCase())
                 shann.sendText(m.chat, `*Berapa hasil dari: ${result.soal.toLowerCase()}*?\n\nWaktu: ${(result.waktu / 1000).toFixed(2)} detik`, m).then(() => {
@@ -795,7 +792,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'jodohku': {
-                if (!m.isGroup) throw mess.group
+                if (!m.isGroup) return m.reply(mess.group)
 
                 let member = participants.map(u => u.id)
                 let me = m.sender
@@ -812,7 +809,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'jadian': {
-                if (!m.isGroup) throw mess.group
+                if (!m.isGroup) return m.reply(mess.group)
                 let member = participants.map(u => u.id)
                 let orang = member[Math.floor(Math.random() * member.length)]
                 let jodoh = member[Math.floor(Math.random() * member.length)]
@@ -830,7 +827,7 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
 
             case 'style': case 'styletext': {
                 let { styletext } = require('./lib/scraper')
-                if (!text) throw 'Masukkan Query text!'
+                if (!text) return m.reply('Masukkan Query text!')
 
                 let anu = await styletext(text)
                 let teks = `Srtle Text From ${text}\n\n`
@@ -844,12 +841,12 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'vote': {
-                if (!m.isGroup) throw mess.group
-                if (m.chat in vote) throw `_Masih ada vote di chat ini!_\n\n*${prefix}hapusvote* - untuk menghapus vote`
-                if (!text) throw `Masukkan Alasan Melakukan Vote, Example: *${prefix + command} Owner Ganteng*`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (m.chat in vote) return m.reply(`_Masih ada vote di chat ini!_\n\n*${prefix}hapusvote* - untuk menghapus vote`)
+                if (!text) return m.reply(`Masukkan Alasan Melakukan Vote, Example: *${prefix + command} Owner Ganteng*`)
 
-                m.reply(`Vote dimulai!\n\n*${prefix}upvote* - untuk ya\n*${prefix}devote* - untuk tidak\n*${prefix}cekvote* - untuk mengecek vote\n*${prefix}hapusvote* - untuk menghapus vote`)
                 vote[m.chat] = [q, [], []]
+                
                 await sleep(1000)
                 upvote = vote[m.chat][1]
                 devote = vote[m.chat][2]
@@ -885,13 +882,13 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             break
 
             case 'upvote': {
-                if (!m.isGroup) throw mess.group
-                if (!(m.chat in vote)) throw `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!(m.chat in vote)) return m.reply(`_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
 
                 isVote = vote[m.chat][1].concat(vote[m.chat][2])
                 wasVote = isVote.includes(m.sender)
                 
-                if (wasVote) throw 'Kamu Sudah Vote'
+                if (wasVote) return m.reply('Kamu Sudah Vote')
                 vote[m.chat][1].push(m.sender)
                 menvote = vote[m.chat][1].concat(vote[m.chat][2])
                 teks_vote = `*「 VOTE 」*
@@ -927,13 +924,13 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'devote': {
-                if (!m.isGroup) throw mess.group
-                if (!(m.chat in vote)) throw `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!(m.chat in vote)) return m.reply(`_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
 
                 isVote = vote[m.chat][1].concat(vote[m.chat][2])
                 wasVote = isVote.includes(m.sender)
 
-                if (wasVote) throw 'Kamu Sudah Vote'
+                if (wasVote) return m.reply('Kamu Sudah Vote')
                 
                 vote[m.chat][2].push(m.sender)
                 menvote = vote[m.chat][1].concat(vote[m.chat][2])
@@ -970,8 +967,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
                      
             case 'cekvote': {
-                if (!m.isGroup) throw mess.group
-                if (!(m.chat in vote)) throw `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!(m.chat in vote)) return m.reply(`_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
                 teks_vote = `*「 VOTE 」*
 *Alasan:* ${vote[m.chat][0]}
 ┌〔 SETUJU 〕
@@ -994,8 +991,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'deletevote': case'delvote': case 'hapusvote': {
-                if (!m.isGroup) throw mess.group
-                if (!(m.chat in vote)) throw `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!(m.chat in vote)) return m.reply(`_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
                 delete vote[m.chat]
                 m.reply('Berhasil Menghapus Sesi Vote Di Grup Ini')
             }
@@ -1010,8 +1007,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'sticker': case 's': case 'stickergif': case 'sgif': {
-                if (!quoted) throw `*Balas Video/Image Dengan Caption* ${prefix + command}`
-                m.reply(mess.wait)
+                if (!quoted) return m.reply(`*Balas Video/Image Dengan Caption* ${prefix + command}`)
                 
                 if (/image/.test(mime)) {
                     let media = await quoted.download()
@@ -1023,13 +1019,13 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                     let encmedia = await shann.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
                     await fs.unlinkSync(encmedia)
                 } else {
-                    throw `*Kirim Gambar/Video Dengan Caption* ${prefix + command}\nDurasi *Video 1-9 Detik*`
+                    m.reply(`*Kirim Gambar/Video Dengan Caption* ${prefix + command}\nDurasi *Video 1-9 Detik*`)
                 }
             }
             break
 
             case 'ebinary': {
-                if (!text) throw `Example : ${prefix + command} text`
+                if (!text) return m.reply(`Example : ${prefix + command} text`)
 
                 let { eBinary } = require('./lib/binary')
                 let eb = await eBinary(text)
@@ -1038,7 +1034,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
             
             case 'dbinary': {
-                if (!text) throw `Example : ${prefix + command} text`
+                if (!text) return m.reply(`Example : ${prefix + command} text`)
                 let { dBinary } = require('./lib/binary')
                 let db = await dBinary(text)
                 m.reply(db)
@@ -1047,8 +1043,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
             case 'emojimix': {
                 let [emoji1, emoji2] = text.split`+`
-                if (!emoji1) throw `Example : ${prefix + command} 😅+🤔`
-                if (!emoji2) throw `Example : ${prefix + command} 😅+🤔`
+                if (!emoji1) return m.reply(`Example : ${prefix + command} 😅+🤔`)
+                if (!emoji2) return m.reply(`Example : ${prefix + command} 😅+🤔`)
                 
                 let anu = await fetchJson(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`)
                 for (let res of anu.results) {
@@ -1059,23 +1055,22 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'ttp': {
-                if (!text) throw `Example : ${prefix + command} text`
+                if (!text) return m.reply(`Example : ${prefix + command} text`)
                 await shann.sendMedia(m.chat, `https://shannbot.herokuapp.com/api/creator/ttp2?apikey=your_apikey&text=${text}`, 'shann', 'morou', m, {asSticker: true})
             }
             break
 			
-	    case 'attp': {
-                if (!text) throw `Example : ${prefix + command} text`
+	        case 'attp': {
+                if (!text) return m.reply(`Example : ${prefix + command} text`)
                 await shann.sendMedia(m.chat, `https://shannbot.herokuapp.com/api/creator/attp?apikey=your_apikey&text=${text}`, 'shann', 'morou', m, {asSticker: true})
             }
             break
 
             case 'smeme': case 'stickmeme': case 'stikmeme': case 'stickermeme': case 'stikermeme': {
                 let respond = `Kirim/reply image/sticker dengan caption ${prefix + command} text1|text2`
-                if (!/image/.test(mime)) throw respond
-                if (!text) throw respond
+                if (!/image/.test(mime)) return m.reply(respond)
+                if (!text) return m.reply(respond)
 
-                m.reply(mess.wait)
                 atas = text.split('|')[0] ? text.split('|')[0] : '-'
                 bawah = text.split('|')[1] ? text.split('|')[1] : '-'
                 
@@ -1089,16 +1084,15 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
             
             case 'toimage': case 'toimg': {
-                if (!quoted) throw 'Reply Image'
-                if (!/webp/.test(mime)) throw `Balas sticker dengan caption *${prefix + command}*`
+                if (!quoted) return m.reply('Reply Image')
+                if (!/webp/.test(mime)) return m.reply(`balas sticker dengan caption *${prefix + command}*`)
             
-                m.reply(mess.wait)
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
                 let ran = await getRandom('.png')
             
                 exec(`ffmpeg -i ${media} ${ran}`, (err) => {
                     fs.unlinkSync(media)
-                    if (err) throw err
+                    if (err) return m.reply(err)
                     let buffer = fs.readFileSync(ran)
                     shann.sendMessage(m.chat, { image: buffer }, { quoted: m })
                     fs.unlinkSync(ran)
@@ -1107,9 +1101,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'tomp4': case 'tovideo': {
-                if (!quoted) throw 'Reply Image'
-                if (!/webp/.test(mime)) throw `balas stiker dengan caption *${prefix + command}*`
-                m.reply(mess.wait)
+                if (!quoted) return m.reply('Reply Image')
+                if (!/webp/.test(mime)) return m.reply(`balas sticker dengan caption *${prefix + command}*`)
                 
                 let { webp2mp4File } = require('./lib/uploader')
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
@@ -1121,10 +1114,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
             
             case 'toaud': case 'toaudio': {
-                if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
-                if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
+                if (!/video/.test(mime) && !/audio/.test(mime)) return m.reply(`Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`)
+                if (!quoted) return m.reply(`Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`)
                 
-                m.reply(mess.wait)
                 
                 let media = await quoted.download()
                 let { toAudio } = require('./lib/converter')
@@ -1135,11 +1127,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'tomp3': {
-                if (/document/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-                if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-                if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-            
-                m.reply(mess.wait)
+                if (/document/.test(mime)) return m.reply(`Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`)
+                if (!/video/.test(mime) && !/audio/.test(mime)) return m.reply(`Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`)
+                if (!quoted) return m.reply(`Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`)
             
                 let media = await quoted.download()
                 let { toAudio } = require('./lib/converter')
@@ -1150,10 +1140,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'tovn': case 'toptt': {
-                if (!/video/.test(mime) && !/audio/.test(mime)) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
-                if (!quoted) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
-            
-                m.reply(mess.wait)
+                if (!/video/.test(mime) && !/audio/.test(mime)) return m.reply(`Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`)
+                if (!quoted) return m.reply(`Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`)
             
                 let media = await quoted.download()
                 let { toPTT } = require('./lib/converter')
@@ -1164,10 +1152,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'togif': {
-                if (!quoted) throw 'Reply Image'
-                if (!/webp/.test(mime)) throw `balas stiker dengan caption *${prefix + command}*`
-                
-                m.reply(mess.wait)
+                if (!quoted) return m.reply('Reply Image')
+                if (!/webp/.test(mime)) return m.reply(`balas stiker dengan caption *${prefix + command}*`)
 		        
                 let { webp2mp4File } = require('./lib/uploader')
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
@@ -1179,8 +1165,6 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
             
 	        case 'tourl': {
-                m.reply(mess.wait)
-		        
                 let { UploadFileUgu, webp2mp4File, TelegraPh } = require('./lib/uploader')
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
                 
@@ -1196,37 +1180,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             }
             break
 
-            case 'imagenobg': case 'removebg': case 'remove-bg': {
-                if (!quoted) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (!/image/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (/webp/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                
-                let remobg = require('remove.bg')
-                let apirnobg = ['q61faXzzR5zNU6cvcrwtUkRU','S258diZhcuFJooAtHTaPEn4T','5LjfCVAp4vVNYiTjq9mXJWHF','aT7ibfUsGSwFyjaPZ9eoJc61','BY63t7Vx2tS68YZFY6AJ4HHF','5Gdq1sSWSeyZzPMHqz7ENfi8','86h6d6u4AXrst4BVMD9dzdGZ','xp8pSDavAgfE5XScqXo9UKHF','dWbCoCb3TacCP93imNEcPxcL']
-                let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
-                
-                hmm = await './src/remobg-'+getRandom('')
-                localFile = await shann.downloadAndSaveMediaMessage(quoted, hmm)
-                outputFile = await './src/hremo-'+getRandom('.png')
-                m.reply(mess.wait)
-                
-                remobg.removeBackgroundFromImageFile({
-                    path: localFile,
-                    apiKey: apinobg,
-                    size: "regular",
-                    type: "auto",
-                    scale: "100%",
-                    outputFile 
-                }).then(async result => {
-                    shann.sendMessage(m.chat, {image: fs.readFileSync(outputFile), caption: mess.success}, { quoted : m })
-                    await fs.unlinkSync(localFile)
-                    await fs.unlinkSync(outputFile)
-                })
-            }
-            break
-
             case 'yts': case 'ytsearch': {
-                if (!text) throw `Example : ${prefix + command} story wa anime`
+                if (!text) return m.reply(`Example : ${prefix + command} story wa anime`)
                 
                 let yts = require("yt-search")
                 let search = await yts(text)
@@ -1242,7 +1197,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'gimage': {
-                if (!text) throw `Example : ${prefix + command} kaori cicak`
+                if (!text) return m.reply(`Example : ${prefix + command} kaori cicak`)
                 
                 anu = await fetchJson(`https://api.akuari.my.id/search/googleimage?query=${text}`)
                 n = anu.result
@@ -1267,7 +1222,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'google': {
-                if (!text) throw `Example : ${prefix + command} fatih arridho`
+                if (!text) return m.reply(`Example : ${prefix + command} fatih arridho`)
                 let google = require('google-it')
 
                 google({'query': text}).then(res => {
@@ -1285,7 +1240,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'play': case 'ytplay': {
-                if (!text) throw `Example : ${prefix + command} story wa anime`
+                if (!text) return m.reply(`Example : ${prefix + command} story wa anime`)
 
                 let yts = require("yt-search")
                 let search = await yts(text)
@@ -1319,7 +1274,6 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'pinterest': {
-                m.reply(mess.wait)
 		        
                 let { pinterest } = require('./lib/scraper')
                 
@@ -1330,7 +1284,6 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'couple': {
-                m.reply(mess.wait)
             
                 let anu = await fetchJson('https://raw.githubusercontent.com/iamriz7/kopel_/main/kopel.json')
                 let random = anu[Math.floor(Math.random() * anu.length)]
@@ -1338,67 +1291,50 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
                 shann.sendMessage(m.chat, { image: { url: random.male }, caption: `Couple Male` }, { quoted: m })
                 shann.sendMessage(m.chat, { image: { url: random.female }, caption: `Couple Female` }, { quoted: m })
             }
-	    break
+	        break
 
-            case 'tiktok': case 'tiktoknowm': {
-                if (!text) throw 'Masukkan Query Link!'
-                
-                m.reply(mess.wait)
-                
-                let anu = await fetchJson(`https://shannbot.herokuapp.com/api/download/tiktok?apikey=your_apikey&url=${text}`)
-                
-                let buttons = [
-                    {buttonId: `tiktokmp3 ${text}`, buttonText: {displayText: 'mp3'}, type: 1}
-                ]
-                
-                let buttonMessage = {
-                    video: { url: anu.result.url },
-                    caption: `Download From ${text}`,
-                    footer: shannMark,
-                    buttons: buttons,
-                    headerType: 5
-                }
-                shann.sendMessage(m.chat, buttonMessage, { quoted: m })
+            case 'tt': case 'tiktok': case 'tiktoknowm': {
+                if (!text) return m.reply('Masukkan Query Link!')
+
+                xfar.downloader.tiktok(text)
+                .then(data => {
+                    shann.sendMessage(m.chat, {video: {url: data.media[1].url}, caption: 'Done'}, { quoted: m })
+                })
+                .catch(err => {
+                    m.reply('Server dalam perbaikkan')
+                })
             }
             break
 
             case 'fbdl': case 'fb': case 'facebook': {
-                if (!text) throw 'Masukkan Query Link!'
+                if (!text) return m.reply('Masukkan Query Link!')
 
-                m.reply(mess.wait)
-                
-                let anu = await fetchJson(api('lolhuman', '/facebook', { url: text }, 'apikey'))
-                shann.sendMessage(m.chat, { video: { url: anu.result }, caption: `Done`}, { quoted: m })
+                xfar.downloader.facebook(text)
+                .then(data => {
+                    shann.sendMessage(m.chat, {video: {url: data.hd}, caption: 'Done'}, {quoted: m})
+                })
+                .catch(err => {
+                    m.reply('Server dalam perbaikkan')
+                })
             }
             break
 
-            case 'tiktokmp3': case 'tiktokaudio': {
-                if (!text) throw 'Masukkan Query Link!'
+            case 'ttmp3': case 'tiktokmp3': case 'tiktokaudio': {
+                if (!text) return m.reply('Masukkan Query Link!')
                 
-                m.reply(mess.wait)
-                
-                let anu = await fetchJson(`https://shannbot.herokuapp.com/api/download/tiktok?apikey=your_apikey&url=${text}`)
-                
-                let buttons = [
-                    {buttonId: `tiktok ${text}`, buttonText: {displayText: 'mp4'}, type: 1}
-                ]
-                
-                let buttonMessage = {
-                    text: `Done`,
-                    footer: shannMark,
-                    buttons: buttons,
-                    headerType: 2
-                }
-                
-                let msg = await shann.sendMessage(m.chat, buttonMessage, { quoted: m })
-                shann.sendMessage(m.chat, { audio: { url: anu.result.url }, mimetype: 'audio/mpeg'}, { quoted: msg })
+                xfar.downloader.tiktok(text)
+                .then(data => {
+                    shann.sendMessage(m.chat, {audio: {url: data.media[1].url}, mimetype: 'audio/mpeg'}, { quoted: m })
+                })
+                .catch(err => {
+                    m.reply('Server dalam perbaikkan')
+                })
             }
             break
 
             case 'joox': case 'jooxdl': {
-                if (!text) throw 'No Query Title'
+                if (!text) return m.reply('No Query Title')
 
-                m.reply(mess.wait)
                 
                 let anu = await fetchJson(api('lolhuman', '/jooxplay', { query: text }, 'apikey'))
                 
@@ -1407,18 +1343,22 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'instagram': case 'ig': case 'igdl': {
-                if (!text) throw 'No Query Url!'
+                if (!text) return m.reply('No Query Url!')
 
-                m.reply(mess.wait)
-                
-		let anu = await fetchJson(api('lolhuman', '/instagram', { url: isUrl(text)[0] }, 'apikey'))
-		for (let media of anu.result) shann.sendFileUrl(m.chat, media, `Done`, m)
+
+                xfar.downloader.instagram(text)
+                .then(data => {
+                    for (let media of data.media) shann.sendFileUrl(m.chat, media.url, `Done`, m)
+                })
+                .catch(err => {
+                    m.reply('Server dalam perbaikkan')
+                })
             }
             break
 
             // OWNER ONLY
             case 'react': {
-                if (!isCreator) throw mess.owner
+                if (!isCreator) return m.reply(mess.owner)
                 reactionMessage = {
                     react: {
                         text: args[0],
@@ -1431,25 +1371,24 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'join': {
-                if (!isCreator) throw mess.owner
-                if (!text) throw 'Masukkan Link Group!'
-                if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) throw 'Link invalid!'
+                if (!isCreator) return m.reply(mess.owner)
+                if (!text) return m.reply('Masukkan Link Group!')
+                if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) return m.reply('Link invalid!')
                 
-                m.reply(mess.wait)
                 let result = args[0].split('https://chat.whatsapp.com/')[1]
-                await shann.groupAcceptInvite(result).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
+                await shann.groupAcceptInvite(result).then((res) => m.reply('Done')).catch((err) => m.reply(jsonformat(err)))
             }
             break
 
             case 'leave': {
-                if (!isCreator) throw mess.owner
-                await shann.groupLeave(m.chat).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
+                if (!isCreator) return m.reply(mess.owner)
+                await shann.groupLeave(m.chat)
             }
             break
 
             case 'setexif': {
-                if (!isCreator) throw mess.owner
-                if (!text) throw `Example : ${prefix + command} packname|author`
+                if (!isCreator) return m.reply(mess.owner)
+                if (!text) return m.reply(`Example : ${prefix + command} packname|author`)
 
                 global.packname = text.split("|")[0]
                 global.author = text.split("|")[1]
@@ -1458,7 +1397,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'block': {
-                if (!isCreator) throw mess.owner
+                if (!isCreator) return m.reply(mess.owner)
 
                 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.updateBlockStatus(users, 'block').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
@@ -1466,7 +1405,7 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'unblock': {
-                if (!isCreator) throw mess.owner
+                if (!isCreator) return m.reply(mess.owner)
 
                 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.updateBlockStatus(users, 'unblock').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
@@ -1474,10 +1413,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'setppbot': {
-                if (!isCreator) throw mess.owner
-                if (!quoted) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (!/image/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (/webp/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
+                if (!isCreator) return m.reply(mess.owner)
+                if (!quoted) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+                if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+                if (/webp/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
                 
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
                 await shann.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
@@ -1486,10 +1425,10 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'delete': case 'del': {
-                if (!m.quoted) throw false
+                if (!m.quoted) return m.reply('false')
                 let { chat, fromMe, id, isBaileys } = m.quoted
-                if (!isBaileys) throw 'Pesan tersebut bukan dikirim oleh bot!'
-                if (!isCreator) throw mess.owner
+                if (!isBaileys) return m.reply('Pesan tersebut bukan dikirim oleh bot!')
+                if (!isCreator) return m.reply(mess.owner)
 
                 shann.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
             }
@@ -1497,9 +1436,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 
             // ADMIN GROUP ONLY
             case 'group': case 'grup': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 if (args[0] === 'close'){
                     await shann.groupSettingUpdate(m.chat, 'announcement').then((res) => m.reply(`*Sukses Menutup Group*`)).catch((err) => m.reply(jsonformat(err)))
@@ -1510,9 +1449,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'antilink': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 if (args[0] === "on") {
                     if (db.data.chats[m.chat].antilink) return m.reply(`*Sudah Aktif kak Sebelumnya*`)
@@ -1527,9 +1466,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'mute': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 if (args[0] === "on") {
                     if (db.data.chats[m.chat].mute) return m.reply(`Sudah Aktif Sebelumnya`)
@@ -1544,8 +1483,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'linkgroup': case 'linkgc': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
 
                 let response = await shann.groupInviteCode(m.chat)
                 shann.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\n👾Link Group : ${groupMetadata.subject}`, m, { detectLink: true })
@@ -1553,9 +1492,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'tagall': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 let teks = `══✪〘 *👥 Tag All* 〙✪══\n\n➲ *Pesan : ${q ? q : 'kosong'}*\n\n`
                 for (let mem of participants) {
@@ -1567,20 +1506,20 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'hidetag': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 shann.sendMessage(m.chat, { text : q ? q : '' , mentions: participants.map(a => a.id)}, { quoted: m })
             }
             break
 
             case 'setppgroup': case 'setppgrup': case 'setppgc': {
-                if (!m.isGroup) throw mess.group
-                if (!isAdmins) throw mess.admin
-                if (!quoted) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (!/image/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (/webp/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isAdmins) return m.reply(mess.admin)
+                if (!quoted) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+                if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+                if (/webp/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
 
                 let media = await shann.downloadAndSaveMediaMessage(quoted)
                 await shann.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media))
@@ -1589,29 +1528,29 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'setname': case 'setsubject': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (!text) throw 'Text ?'
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
+                if (!text) return m.reply('Text ?')
 
                 await shann.groupUpdateSubject(m.chat, text).then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
             }
             break
 
             case 'setdesc': case 'setdesk': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (!text) throw 'Text ?'
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
+                if (!text) return m.reply('Text ?')
 
                 await shann.groupUpdateDescription(m.chat, text).then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
             }
             break
 
             case 'kick': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
@@ -1619,9 +1558,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'add': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
                 
                 let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
@@ -1629,9 +1568,9 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'promote': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
@@ -1639,52 +1578,87 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
             break
 
             case 'demote': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) return m.reply(mess.group)
+                if (!isBotAdmins) return m.reply(mess.botAdmin)
+                if (!isAdmins) return m.reply(mess.admin)
 
                 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
                 await shann.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => m.reply('Done')).catch((err) => m.reply('Failed'))
             }
             break
 
-            // MENU BOT
-            case 'simplemenu': case 'list': case 'help': case 'menu': {
-		let hitAll = await fetchJson('https://api.countapi.xyz/hit/shann/visits')
-		let hitHarian = await fetchJson(`https://api.countapi.xyz/hit/shann${moment.tz('Asia/Jakarta').format('DDMMYYYY')}/visits`)
-                let ownernya = ownernomer + '@s.whatsapp.net'
-                let me = m.sender
-                let ments = [ownernya, me, ini_mark]
-                let kukiw = `*${ucapanWaktu} Kak ${pushname}*!`
-		let kukiw2 = `
-┌──⭓ *JUST INFO*
-│
-│⭔ *Bot Name:* ${shann.user.name}
-│⭔ *Hit:* ${hitHarian.value}
-│⭔ *Total Hit:* ${hitAll.value}
-│
-└───────⭓`
-		let shannMarks = `${time2}\n${shannMark}`
-                let sections = [
-                    {
-                        title: "MENU BOT",
-                        rows: [
-                            {title: "Group", rowId: `mgroup`, description: `👥Group Menu`},
-                            {title: "Downloader", rowId: `mdownloader`, description: `📥Downloader Menu`},
-                            {title: "Search", rowId: `msearch`, description: `🔍Search Menu`},
-                            {title: "Fun", rowId: `mfun`, description: `🔫Fun Menu`},
-                            {title: "Convert", rowId: `mconvert`, description: `🛠Convert Menu`},
-                            {title: "Owner", rowId: `mowner`, description: `🎟Owner Menu`}
-                        ]
-                    },
-                ]
-                shann.sendListMsg(m.chat, kukiw2, shannMarks, kukiw, `Pilih Menu`, sections, m)
+            // CONTACT OWNER
+            case 'creator': {
+                shann.sendContact(m.chat, global.ikhsan77, m)
             }
-            break
 
-            case 'mgroup': {
-                goup = `
-┌──⭓ *Group Menu*
+            // MENU BOT
+            case 'list': case 'help': case 'menu': case 'p': {
+                let shannBtn = [{ buttonId: 'creator', buttonText: {displayText: 'Creator'}, type: 1}]
+	        	let shannMsg = `*${ucapanWaktu} Kak ${pushname}*!\n▻►▻►▻►▻►▻►▻►▻►▻►
+
+╭──❍「 *INFO BOT* 」
+│
+│⭔ *Nama Bot* : ${shann.user.name}
+│⭔ *Mode* : Public
+│⭔ *Prefix* :「 MULTI-PREFIX 」
+│⭔ *Total Hit* : ${jumlahcmd}
+│⭔ *Total Hit Today* : ${jumlahharian}
+│
+╰──❍
+
+╭──❍「 *OWNER MENU* 」
+│
+│⭔ ${prefix}react [emoji]
+│⭔ ${prefix}join [link]
+│⭔ ${prefix}leave
+│⭔ ${prefix}block @user
+│⭔ ${prefix}unblock @user
+│⭔ ${prefix}setppbot [image]
+│⭔ ${prefix}setexif
+│
+╰──❍
+
+╭──❍「 *CONVER MENU* 」
+│
+│⭔ ${prefix}toimg
+│⭔ ${prefix}emojimix
+│⭔ ${prefix}tomp4
+│⭔ ${prefix}togif
+│⭔ ${prefix}tourl
+│⭔ ${prefix}tovn
+│⭔ ${prefix}tomp3
+│⭔ ${prefix}toaudio
+│⭔ ${prefix}ebinary
+│⭔ ${prefix}dbinary
+│⭔ ${prefix}styletext
+│
+╰──❍
+
+╭──❍「 *DOWNLOADER MENU* 」
+│
+│⭔ ${prefix}fb [url]
+│⭔ ${prefix}ig [url]
+│⭔ ${prefix}tt [url]
+│⭔ ${prefix}ttmp3 [url]
+│
+╰──❍
+
+╭──❍「 *FUN MENU* 」
+│
+│⭔ ${prefix}caklontong
+│⭔ ${prefix}jadian
+│⭔ ${prefix}jodohku
+│⭔ ${prefix}delttt
+│⭔ ${prefix}tictactoe
+│⭔ ${prefix}family100
+│⭔ ${prefix}tebak [option]
+│⭔ ${prefix}math [mode]
+│⭔ ${prefix}suitpvp [@tag]
+│
+╰──❍
+
+╭──❍「 *GROUP MENU* 」
 │
 │⭔ ${prefix}linkgroup
 │⭔ ${prefix}setppgc [image]
@@ -1700,36 +1674,12 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 │⭔ ${prefix}promote @user
 │⭔ ${prefix}demote @user
 │⭔ ${prefix}vote [text]
-│⭔ ${prefix}devote
-│⭔ ${prefix}upvote
 │⭔ ${prefix}cekvote
 │⭔ ${prefix}hapusvote
 │
-└───────⭓`
-                
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await shann.sendButtonText(m.chat, buttons, goup, shannMark, m)
-            }
-            break
+╰──❍
 
-            case 'mdownloader': {
-                dwnloader = `
-┌──⭓ *Downloader Menu*
-│
-│⭔ ${prefix}tiktok [url]
-│⭔ ${prefix}tiktokmp3 [url]
-│⭔ ${prefix}fb [url]
-│
-└───────⭓`
-                
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await shann.sendButtonText(m.chat, buttons, dwnloader, shannMark, m)
-            }
-            break
-
-            case 'msearch': {
-                sarch = `
-┌──⭓ *Search Menu*
+╭──❍「 *SEARCH MENU* 」
 │
 │⭔ ${prefix}play [query]
 │⭔ ${prefix}yts [query]
@@ -1739,82 +1689,28 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 │⭔ ${prefix}pinterest [query]
 │⭔ ${prefix}ytsearch [query]
 │
-└───────⭓`
-                
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await shann.sendButtonText(m.chat, buttons, sarch, shannMark, m)
-            }
-            break
+╰──❍
 
-            case 'mfun': {
-                mun = `
-┌──⭓ *Fun Menu*
+╭──❍「 *STICKER MENU* 」
+│
+│⭔ ${prefix}attp
+│⭔ ${prefix}smeme
+│⭔ ${prefix}sticker
+│⭔ ${prefix}ttp
+│
+╰──❍
+
+╭──❍「 *VOKAL MENU* 」
 │
 │⭔ ${prefix}halah
 │⭔ ${prefix}hilih
 │⭔ ${prefix}huluh
 │⭔ ${prefix}heleh
 │⭔ ${prefix}holoh
-│⭔ ${prefix}jadian
-│⭔ ${prefix}jodohku
-│⭔ ${prefix}delttt
-│⭔ ${prefix}tictactoe
-│⭔ ${prefix}family100
-│⭔ ${prefix}tebak [option]
-│⭔ ${prefix}math [mode]
-│⭔ ${prefix}suitpvp [@tag]
 │
-└───────⭓`
-                
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await shann.sendButtonText(m.chat, buttons, mun, shannMark, m)
-            }
-            break
+╰──❍`
 
-            case 'mconvert': {
-                cnvert = `
-┌──⭓ *Convert Menu*
-│
-│⭔ ${prefix}attp
-│⭔ ${prefix}ttp
-│⭔ ${prefix}toimg
-│⭔ ${prefix}removebg
-│⭔ ${prefix}sticker
-│⭔ ${prefix}emojimix
-│⭔ ${prefix}tomp4
-│⭔ ${prefix}togif
-│⭔ ${prefix}tourl
-│⭔ ${prefix}tovn
-│⭔ ${prefix}tomp3
-│⭔ ${prefix}toaudio
-│⭔ ${prefix}ebinary
-│⭔ ${prefix}dbinary
-│⭔ ${prefix}styletext
-│⭔ ${prefix}smeme
-│
-└───────⭓`
-
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type: 1 }]
-                await shann.sendButtonText(m.chat, buttons, cnvert, shannMark, m)
-            }
-            break
-
-            case 'mowner': {
-                oner = `
-┌──⭓ *Owner Menu*
-│
-│⭔ ${prefix}react [emoji]
-│⭔ ${prefix}join [link]
-│⭔ ${prefix}leave
-│⭔ ${prefix}block @user
-│⭔ ${prefix}unblock @user
-│⭔ ${prefix}setppbot [image]
-│⭔ ${prefix}setexif
-│
-└───────⭓`
-
-                let buttons = [{ buttonId: 'simplemenu', buttonText: { displayText: 'Back' }, type:1 }]
-                await shann.sendButtonText(m.chat, buttons, oner, shannMark, m)
+                await shann.sendButtonText(m.chat, shannBtn, shannMsg, shannMark, m)
             }
             break
 
@@ -1890,7 +1786,8 @@ ${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
 		        }
         }
     } catch (err) {
-        m.reply(util.format(err))
+        console.log(err)
+        m.reply('Something error')
     }
 }
 

@@ -21,12 +21,13 @@ global.APIKeys = {
 }
 
 // Other
-global.owner = ['6285781183473', '6287872629912']
+global.owner = ['6285781183473', '6287872629912', '6288809276695']
 global.ownernomer = "6285781183473"
 global.premium = ['6287872629912']
+global.ikhsan77 = ['6285781183473']
 global.packname = 'Fajarara'
 global.author = '@Raasand_'
-global.sessionName = 'nazedev'
+global.sessionName = 'shanndev'
 global.prefa = ['','!','.','#','&']
 global.sp = ''
 global.mess = {
@@ -38,7 +39,7 @@ global.mess = {
     group: 'Group Only',
     private: 'Private Chat Only',
     bot: 'Fitur Khusus Pengguna Nomor Bot',
-    wait: 'Loading...',
+    wait: 'Wait',
     endLimit: 'Limit habis',
 }
 global.limitawal = {
