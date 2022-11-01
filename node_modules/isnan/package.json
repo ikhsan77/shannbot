@@ -1,0 +1,36 @@
+
+{
+  "name": "isnan",
+  "version": "0.0.0",
+  "description": "Test whether value is NaN",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test.js | tap-spec",
+    "test-cov": "nyc npm test",
+    "report-cov": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yefremov/isnan.git"
+  },
+  "keywords": [
+    "test",
+    "object",
+    "nan",
+    "isnan",
+    "browser",
+    "node"
+  ],
+  "author": "Anton Yefremov <anton.yefremov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yefremov/isnan/issues"
+  },
+  "homepage": "https://github.com/yefremov/isnan#readme",
+  "devDependencies": {
+    "coveralls": "^2.12.0",
+    "nyc": "^10.1.2",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.6.3"
+  }
+}

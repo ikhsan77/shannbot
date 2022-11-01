@@ -1,44 +1,45 @@
 const fs = require('fs')
 const chalk = require('chalk')
 
-// Website Api
+// REST APIs
 global.APIs = {
-	zenz: 'https://zenzapis.xyz',
 	lolhuman: 'https://api.lolhuman.xyz/api'
 }
 
-// Apikey Website Api
+// Apikey REST APIs
 global.APIKeys = {
-	'https://zenzapis.xyz': '0e92565522',
 	'https://api.lolhuman.xyz/api': 'SHANNBot-APIKEY'
 }
 
-// Other
+// Owner
 global.owner = ['6285781183473', '6287872629912', '6288809276695']
 global.ownernomer = "6285781183473"
-global.premium = ['6287872629912']
 global.ikhsan77 = ['6285781183473']
+
+// Sticker
 global.packname = 'Fajarara'
-global.author = '@Raasand_'
+global.author = '@shannbot.ofc'
+
+// Session
 global.sessionName = 'shanndev'
+
+// Prefix
 global.prefa = ['','!','.','#','&']
 global.sp = ''
+
+// Error Message
 global.mess = {
     success: 'Done',
     admin: 'Admin Only',
     botAdmin: 'Bot Harus Menjadi Admin Terlebih Dahulu!',
-    premime: 'Fitur Khusus Premium Kalo Mau Daftar Ketik Sewa',
+    premium: 'Fitur Khusus Premium Kalo Mau Daftar Ketik Sewa',
     owner: 'Owner Only',
     group: 'Group Only',
     private: 'Private Chat Only',
     bot: 'Fitur Khusus Pengguna Nomor Bot',
-    wait: 'Wait',
-    endLimit: 'Limit habis',
+    wait: '_wait a minute_',
 }
-global.limitawal = {
-    premium: "Infinity",
-    free: "Infinity"
-}
+
 global.thumb = fs.readFileSync('./lib/hisoka-moro.png')
 global.vaze = { url: 'https://telegra.ph/file/15209657f9d4f59c7ca1e.mp4' }
 
