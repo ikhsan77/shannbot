@@ -1,7 +1,7 @@
-require('./config')
+let conf = require('./config.json')
 
 const { default: shannConnect, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, proto } = require("@adiwajshing/baileys")
-const { state, saveState } = useSingleFileAuthState(`./${sessionName}.json`)
+const { state, saveState } = useSingleFileAuthState(`./${conf.sessionName}.json`)
 const pino = require('pino')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
@@ -12,60 +12,14 @@ const path = require('path')
 const _ = require('lodash')
 const axios = require('axios')
 const PhoneNumber = require('awesome-phonenumber')
-const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
+const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/converter/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('./lib/myfunc')
 
-var low
-try {
-    low = require('lowdb')
-} catch (e) {
-    low = require('./lib/lowdb')
-}
-
-const { Low, JSONFile } = low
-const mongoDB = require('./lib/mongoDB')
-
-global.api = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '')
+global.api = (name, path = '/', query = {}, apikeyqueryname) => (name in conf.api ? conf.api[name].url : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: conf.api[name].apikey } : {}) })) : '')
 
 const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
-// global.db = new Low(new mongoDB('mongodb+srv://shannbot:fajar22190_@cluster0.scnnx6e.mongodb.net/?retryWrites=true&w=majority'))
-global.db = new Low(
-    /https?:\/\//.test(opts['db'] || '') ?
-        new cloudDBAdapter(opts['db']) : /mongodb/.test(opts['db']) ?
-            new mongoDB(opts['db']) :
-            new JSONFile(`src/database.json`)
-)
-
-global.DATABASE = global.db // Backwards Compatibility
-global.loadDatabase = async function loadDatabase() {
-    if (global.db.READ) return new Promise((resolve) => setInterval(function () { (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null) }, 1 * 1000))
-    if (global.db.data !== null) return
-
-    global.db.READ = true
-    await global.db.read()
-
-    global.db.READ = false
-    global.db.data = {
-        users: {},
-        chats: {},
-        database: {},
-        game: {},
-        settings: {},
-        others: {},
-        sticker: {},
-        ...(global.db.data || {})
-    }
-
-    global.db.chain = _.chain(global.db.data)
-}
-loadDatabase()
-
-// save database every 30seconds
-if (global.db) setInterval(async () => {
-    if (global.db.data) await global.db.write()
-}, 30 * 1000)
 
 async function shannStart() {
     const shann = shannConnect({
@@ -77,11 +31,10 @@ async function shannStart() {
 
     store.bind(shann.ev)
 
-    // anticall auto block
     shann.ws.on('CB:call', async (json) => {
         const callerId = json.content[0].attrs['call-creator']
         if (json.content[0].tag == 'offer') {
-            let shannCaller  = await shann.sendContact(callerId, global.ikhsan77)
+            let shannCaller  = await shann.sendContact(callerId, conf.owner.creator)
             shann.sendMessage(callerId, { text: `Jangan menelepon!` }, { quoted: shannCaller })
 
             await sleep(8000)
@@ -97,7 +50,6 @@ async function shannStart() {
             mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
 
             if (mek.key && mek.key.remoteJid === 'status@broadcast') return
-            if (!shann.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
             if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return
 
             m = smsg(shann, mek, store)
@@ -107,9 +59,7 @@ async function shannStart() {
         }
     })
 
-    // Group Update
     shann.ev.on('groups.update', async pea => {
-        // Get Profile Picture Group
         try {
             ppgc = await shann.profilePictureUrl(pea[0].id, 'image')
         } catch {
@@ -227,8 +177,6 @@ async function shannStart() {
 
         return status
     }
-
-    shann.public = true
 
     shann.serializeM = (m) => smsg(shann, m, store)
 
@@ -610,7 +558,7 @@ async function shannStart() {
             let { writeExif } = require('./lib/exif')
             let media = { mimetype: mime, data }
 
-            pathFile = await writeExif(media, { packname: options.packname ? options.packname : global.packname, author: options.author ? options.author : global.author, categories: options.categories ? options.categories : [] })
+            pathFile = await writeExif(media, { packname: options.packname ? options.packname : conf.sticker.packname, author: options.author ? options.author : conf.sticker.packname, categories: options.categories ? options.categories : [] })
             await fs.promises.unlink(filename)
 
             type = 'sticker'

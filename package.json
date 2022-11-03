@@ -30,6 +30,7 @@
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.10",
     "child_process": "^1.0.2",
+    "convert-string-to-number": "^1.0.3",
     "cookie": "^0.5.0",
     "crypto": "^1.0.1",
     "email-validator": "^2.0.4",

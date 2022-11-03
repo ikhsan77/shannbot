@@ -1,0 +1,36 @@
+{
+    "api": {
+        "lolhuman": {
+            "url": "https://api.lolhuman.xyz/api",
+            "apikey": "SHANNBot-APIKEY"
+        }
+    },
+    "owner": {
+        "owner": ["6285781183473", "6287872629912", "6288809276695", "6281586086597"],
+        "ownernomer": "6285781183473",
+        "creator": ["6285781183473"]
+    },
+    "sticker": {
+        "packname": "Fajarara",
+        "author": "@shannbot.ofc"
+    },
+    "sessionName": "shanndev",
+    "prefa": ["", ".", "!", "#", "&"],
+    "mess": {
+        "wait": "_wait a minute_",
+        "success": "_done_",
+        "premium": "_only premium user_\n\ningin menjadi member premium?\n=> #premium",
+        "botAdmin": "_bot harus menjadi admin terlebih dahulu_",
+        "owner": "_only owner_",
+        "group": "_only group_",
+        "admin": "_only admin_",
+        "private": "_only private chat_"
+    },
+    "group": {
+        "anitilink": true
+    },
+    "status": {
+        "bot": true,
+        "public": false
+    }
+}
