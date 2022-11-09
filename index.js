@@ -33,11 +33,8 @@ async function shannStart() {
 
     shann.ws.on('CB:call', async (json) => {
         const callerId = json.content[0].attrs['call-creator']
-        if (json.content[0].tag == 'offer') {
-            let shannCaller  = await shann.sendContact(callerId, conf.owner.creator)
-            shann.sendMessage(callerId, { text: `Jangan menelepon!` }, { quoted: shannCaller })
 
-            await sleep(8000)
+        if (json.content[0].tag == 'offer') {
             await shann.updateBlockStatus(callerId, "block")
         }
     })
@@ -55,64 +52,26 @@ async function shannStart() {
             m = smsg(shann, mek, store)
             require("./handler")(shann, m, chatUpdate, store)
         } catch (err) {
-            console.log(err)
-        }
-    })
-
-    shann.ev.on('groups.update', async pea => {
-        try {
-            ppgc = await shann.profilePictureUrl(pea[0].id, 'image')
-        } catch {
-            ppgc = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-        }
-
-        let profileGroup = { url: ppgc }
-
-        if (pea[0].announce == true) {
-            shann.send5ButImg(pea[0].id, `「 *Group Settings Change* 」\n\nGroup telah ditutup oleh admin, Sekarang hanya admin yang dapat mengirim pesan !`, `Group Settings Change Message by IKHSAN77`, profileGroup, [])
-        } else if (pea[0].announce == false) {
-            shann.send5ButImg(pea[0].id, `「 *Group Settings Change* 」\n\nGroup telah dibuka oleh admin, Sekarang peserta dapat mengirim pesan !`, `Group Settings Change Message by IKHSAN77`, profileGroup, [])
-        } else if (pea[0].restrict == true) {
-            shann.send5ButImg(pea[0].id, `「 *Group Settings Change* 」\n\nInfo group telah dibatasi, Sekarang hanya admin yang dapat mengedit info group !`, `Group Settings Change Message by IKHSAN77`, profileGroup, [])
-        } else if (pea[0].restrict == false) {
-            shann.send5ButImg(pea[0].id, `「 *Group Settings Change* 」\n\nInfo group telah dibuka, Sekarang peserta dapat mengedit info group !`, `Group Settings Change Message by IKHSAN77`, profileGroup, [])
-        } else {
-            shann.send5ButImg(pea[0].id, `「 *Group Settings Change* 」\n\nGroup Subject telah diganti menjadi *${pea[0].subject}*`, `Group Settings Change Message by IKHSAN77`, profileGroup, [])
+            console.log('Message Upsert Error')
         }
     })
 
     shann.ev.on('group-participants.update', async (anu) => {
         try {
-            let metadata = await shann.groupMetadata(anu.id)
             let participants = anu.participants
 
             for (let num of participants) {
-                // Get Profile User
-                try {
-                    ppuser = await shann.profilePictureUrl(num, 'image')
-                } catch {
-                    ppuser = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-                }
-
-                // Get Profile Group
-                try {
-                    ppgroup = await shann.profilePictureUrl(anu.id, 'image')
-                } catch {
-                    ppgroup = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-                }
-
                 if (anu.action == 'add') {
-                    shann.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: `Welcome to ${metadata.subject} @${num.split("@")[0]}` })
+                    shann.sendMessage(anu.id, {text: `Silahkan baca deskripsi grup @${num.split("@")[0]}`, mentions: [num]})
                 } else if (anu.action == 'remove') {
-                    shann.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: `@${num.split("@")[0]} Leaving to ${metadata.subject}` })
+                    shann.sendMessage(anu.id, {text: `Goodbye @${num.split("@")[0]}`, mentions: [num]})
                 }
             }
         } catch (err) {
-            console.log(err)
+            console.log('Group Participants Error')
         }
     })
 
-    // Setting
     shann.decodeJid = (jid) => {
         if (!jid) return jid
 
@@ -125,7 +84,7 @@ async function shannStart() {
     shann.ev.on('contacts.update', update => {
         for (let contact of update) {
             let id = shann.decodeJid(contact.id)
-            if (store && store.contacts) store.contacts[id] = { id, name: contact.notify }
+            if (store && store.contacts) store.contacts[id] = {id, name: contact.notify}
         }
     })
 
@@ -180,279 +139,102 @@ async function shannStart() {
 
     shann.serializeM = (m) => smsg(shann, m, store)
 
-    shann.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update
+    shann.ev.on('connection.update', async (upd) => {
+        const {connection, lastDisconnect} = upd
 
         if (connection === 'close') {
-            let reason = new Boom(lastDisconnect?.error)?.output.statusCode
+            let alasan = new Boom(lastDisconnect?.error)?.output.statusCode
 
-            if (reason === DisconnectReason.badSession) { console.log(`Bad Session File, Please Delete Session and Scan Again`); shann.logout(); }
-            else if (reason === DisconnectReason.connectionClosed) { console.log("Connection closed, reconnecting...."); shannStart(); }
-            else if (reason === DisconnectReason.connectionLost) { console.log("Connection Lost from Server, reconnecting..."); shannStart(); }
-            else if (reason === DisconnectReason.connectionReplaced) { console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First"); shann.logout(); }
-            else if (reason === DisconnectReason.loggedOut) { console.log(`Device Logged Out, Please Scan Again And Run.`); shann.logout(); }
-            else if (reason === DisconnectReason.restartRequired) { console.log("Restart Required, Restarting..."); shannStart(); }
-            else if (reason === DisconnectReason.timedOut) { console.log("Connection TimedOut, Reconnecting..."); shannStart(); }
-            else shann.end(`Unknown DisconnectReason: ${reason}|${connection}`)
+            if (![440, 401, 428].includes(alasan)) {shannStart()}
+            else shann.end(alasan)
+        } else if (connection === 'open') {
+            console.log('Connected...')
         }
-
-        console.log('Connected...', update)
     })
 
     shann.ev.on('creds.update', saveState)
 
-    // Add Other
-
-    /**
-    *
-    * @param {*} jid
-    * @param {*} url
-    * @param {*} caption
-    * @param {*} quoted
-    * @param {*} options
-    */
     shann.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
-        let mime = '';
+        let mime = ''
         let res = await axios.head(url)
         mime = res.headers['content-type']
 
         if (mime.split("/")[1] === "gif") {
             return shann.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options }, { quoted: quoted, ...options })
-        }
-
-        let type = mime.split("/")[0] + "Message"
-
-        if (mime === "application/pdf") {
+        } else if (mime === "application/pdf") {
             return shann.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options }, { quoted: quoted, ...options })
-        }
-
-        if (mime.split("/")[0] === "image") {
+        } else if (mime.split("/")[0] === "image") {
             return shann.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options }, { quoted: quoted, ...options })
-        }
-
-        if (mime.split("/")[0] === "video") {
+        } else if (mime.split("/")[0] === "video") {
             return shann.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options }, { quoted: quoted, ...options })
-        }
-
-        if (mime.split("/")[0] === "audio") {
+        } else if (mime.split("/")[0] === "audio") {
             return shann.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options })
         }
     }
 
-    /** Send List Messaage
-    *
-    *@param {*} jid
-    *@param {*} text
-    *@param {*} footer
-    *@param {*} title
-    *@param {*} butText
-    *@param [*] sections
-    *@param {*} quoted
-    */
     shann.sendListMsg = (jid, text = '', footer = '', title = '', butText = '', sects = [], quoted) => {
         let sections = sects
-        var listMes = {
-            text: text,
-            footer: footer,
-            title: title,
-            buttonText: butText,
-            sections
-        }
+        var listMes = {text: text, footer: footer, title: title, buttonText: butText, sections}
 
         shann.sendMessage(jid, listMes, { quoted: quoted })
     }
 
-    /** Send Button 5 Message
-    * 
-    * @param {*} jid
-    * @param {*} text
-    * @param {*} footer
-    * @param {*} button
-    * @returns 
-    */
     shann.send5ButMsg = (jid, text = '', footer = '', but = []) => {
         let templateButtons = but
-        var templateMessage = {
-            text: text,
-            footer: footer,
-            templateButtons: templateButtons
-        }
+        var templateMessage = {text: text, footer: footer, templateButtons: templateButtons}
 
         shann.sendMessage(jid, templateMessage)
     }
 
-    /** Send Button 5 Image
-    *
-    * @param {*} jid
-    * @param {*} text
-    * @param {*} footer
-    * @param {*} image
-    * @param [*] button
-    * @param {*} options
-    * @returns
-    */
     shann.send5ButImg = async (jid, text = '', footer = '', img, but = [], options = {}) => {
         let message = await prepareWAMessageMedia({ image: img }, { upload: shann.waUploadToServer })
-        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-            templateMessage: {
-                hydratedTemplate: {
-                    imageMessage: message.imageMessage,
-                    "hydratedContentText": text,
-                    "hydratedFooterText": footer,
-                    "hydratedButtons": but
-                }
-            }
-        }), options)
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({templateMessage: {hydratedTemplate: {imageMessage: message.imageMessage, "hydratedContentText": text, "hydratedFooterText": footer, "hydratedButtons": but}}}), options)
 
         shann.relayMessage(jid, template.message, { messageId: template.key.id })
     }
 
-    /** Send Button 5 Video
-    *
-    * @param {*} jid
-    * @param {*} text
-    * @param {*} footer
-    * @param {*} Video
-    * @param [*] button
-    * @param {*} options
-    * @returns
-    */
     shann.send5ButVid = async (jid, text = '', footer = '', vid, but = [], options = {}) => {
         let message = await prepareWAMessageMedia({ video: vid }, { upload: shann.waUploadToServer })
-        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-            templateMessage: {
-                hydratedTemplate: {
-                    videoMessage: message.videoMessage,
-                    "hydratedContentText": text,
-                    "hydratedFooterText": footer,
-                    "hydratedButtons": but
-                }
-            }
-        }), options)
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({templateMessage: {hydratedTemplate: {videoMessage: message.videoMessage, "hydratedContentText": text, "hydratedFooterText": footer, "hydratedButtons": but}}}), options)
 
         shann.relayMessage(jid, template.message, { messageId: template.key.id })
     }
 
-    /** Send Button 5 Gif
-    *
-    * @param {*} jid
-    * @param {*} text
-    * @param {*} footer
-    * @param {*} Gif
-    * @param [*] button
-    * @param {*} options
-    * @returns
-    */
     shann.send5ButGif = async (jid, text = '', footer = '', gif, but = [], options = {}) => {
         let message = await prepareWAMessageMedia({ video: gif, gifPlayback: true }, { upload: shann.waUploadToServer })
-        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-            templateMessage: {
-                hydratedTemplate: {
-                    videoMessage: message.videoMessage,
-                    "hydratedContentText": text,
-                    "hydratedFooterText": footer,
-                    "hydratedButtons": but
-                }
-            }
-        }), options)
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({templateMessage: {hydratedTemplate: {videoMessage: message.videoMessage, "hydratedContentText": text, "hydratedFooterText": footer, "hydratedButtons": but}}}), options)
 
         shann.relayMessage(jid, template.message, { messageId: template.key.id })
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} buttons 
-    * @param {*} caption 
-    * @param {*} footer 
-    * @param {*} quoted 
-    * @param {*} options 
-    */
     shann.sendButtonText = (jid, buttons = [], text, footer, quoted = '', options = {}) => {
-        let buttonMessage = {
-            text,
-            footer,
-            buttons,
-            headerType: 2,
-            ...options
-        }
+        let buttonMessage = {text, footer, buttons, headerType: 2, ...options}
 
         shann.sendMessage(jid, buttonMessage, { quoted, ...options })
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} text 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendText = (jid, text, quoted = '', options) => shann.sendMessage(jid, { text: text, ...options }, { quoted })
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} caption 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendImage = async (jid, path, caption = '', quoted = '', options) => {
         let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
 
         return await shann.sendMessage(jid, { image: buffer, caption: caption, ...options }, { quoted })
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} caption 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendVideo = async (jid, path, caption = '', quoted = '', gif = false, options) => {
         let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
 
         return await shann.sendMessage(jid, { video: buffer, caption: caption, gifPlayback: gif, ...options }, { quoted })
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} quoted 
-    * @param {*} mime 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendAudio = async (jid, path, quoted = '', ptt = false, options) => {
         let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
 
         return await shann.sendMessage(jid, { audio: buffer, ptt: ptt, ...options }, { quoted })
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} text 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendTextWithMentions = async (jid, text, quoted, options = {}) => shann.sendMessage(jid, { text: text, contextInfo: { mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net') }, ...options }, { quoted })
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
         let buff = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
         let buffer
@@ -467,14 +249,6 @@ async function shannStart() {
         return buffer
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
         let buff = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
         let buffer
@@ -489,13 +263,6 @@ async function shannStart() {
         return buffer
     }
 
-    /**
-    * 
-    * @param {*} message 
-    * @param {*} filename 
-    * @param {*} attachExtension 
-    * @returns 
-    */
     shann.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
         let quoted = message.msg ? message.msg : message
         let mime = (message.msg || message).mimetype || ''
@@ -512,7 +279,6 @@ async function shannStart() {
         let type = await FileType.fromBuffer(buffer)
         trueFileName = attachExtension ? (filename + '.' + type.ext) : filename
 
-        // save to file
         await fs.writeFileSync(trueFileName, buffer)
         return trueFileName
     }
@@ -532,16 +298,6 @@ async function shannStart() {
         return buffer
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} path 
-    * @param {*} filename
-    * @param {*} caption
-    * @param {*} quoted 
-    * @param {*} options 
-    * @returns 
-    */
     shann.sendMedia = async (jid, path, fileName = '', caption = '', quoted = '', options = {}) => {
         let types = await shann.getFile(path, true)
         let { mime, ext, res, data, filename } = types
@@ -558,7 +314,7 @@ async function shannStart() {
             let { writeExif } = require('./lib/exif')
             let media = { mimetype: mime, data }
 
-            pathFile = await writeExif(media, { packname: options.packname ? options.packname : conf.sticker.packname, author: options.author ? options.author : conf.sticker.packname, categories: options.categories ? options.categories : [] })
+            pathFile = await writeExif(media, {packname: options.packname ? options.packname : conf.sticker.packname, author: options.author ? options.author : conf.sticker.packname, categories: options.categories ? options.categories : []})
             await fs.promises.unlink(filename)
 
             type = 'sticker'
@@ -573,25 +329,17 @@ async function shannStart() {
         return fs.promises.unlink(pathFile)
     }
 
-    /**
-    * 
-    * @param {*} jid 
-    * @param {*} message 
-    * @param {*} forceForward 
-    * @param {*} options 
-    * @returns 
-    */
     shann.copyNForward = async (jid, message, forceForward = false, options = {}) => {
         let vtype
 
         if (options.readViewOnce) {
             message.message = message.message && message.message.ephemeralMessage && message.message.ephemeralMessage.message ? message.message.ephemeralMessage.message : (message.message || undefined)
             vtype = Object.keys(message.message.viewOnceMessage.message)[0]
+           
             delete (message.message && message.message.ignore ? message.message.ignore : (message.message || undefined))
             delete message.message.viewOnceMessage.message[vtype].viewOnce
-            message.message = {
-                ...message.message.viewOnceMessage.message
-            }
+           
+            message.message = {...message.message.viewOnceMessage.message}
         }
 
         let mtype = Object.keys(message.message)[0]
@@ -600,21 +348,9 @@ async function shannStart() {
         let context = {}
 
         if (mtype != "conversation") context = message.message[mtype].contextInfo
-        content[ctype].contextInfo = {
-            ...context,
-            ...content[ctype].contextInfo
-        }
+        content[ctype].contextInfo = {...context, ...content[ctype].contextInfo}
 
-        const waMessage = await generateWAMessageFromContent(jid, content, options ? {
-            ...content[ctype],
-            ...options,
-            ...(options.contextInfo ? {
-                contextInfo: {
-                    ...content[ctype].contextInfo,
-                    ...options.contextInfo
-                }
-            } : {})
-        } : {})
+        const waMessage = await generateWAMessageFromContent(jid, content, options ? {...content[ctype],...options, ...(options.contextInfo ? {contextInfo: {...content[ctype].contextInfo, ...options.contextInfo}} : {})} : {})
 
         await shann.relayMessage(jid, waMessage.message, { messageId: waMessage.key.id })
         return waMessage
@@ -635,10 +371,7 @@ async function shannStart() {
         else if (content.caption) content.caption = text || content.caption
         else if (content.text) content.text = text || content.text
 
-        if (typeof content !== 'string') msg[mtype] = {
-            ...content,
-            ...options
-        }
+        if (typeof content !== 'string') msg[mtype] = {...content, ...options}
 
         if (copy.key.participant) sender = copy.key.participant = sender || copy.key.participant
         else if (copy.key.participant) sender = copy.key.participant = sender || copy.key.participant
@@ -652,30 +385,15 @@ async function shannStart() {
         return proto.WebMessageInfo.fromObject(copy)
     }
 
-
-    /**
-    * 
-    * @param {*} path 
-    * @returns 
-    */
     shann.getFile = async (PATH, save) => {
         let res
         let data = Buffer.isBuffer(PATH) ? PATH : /^data:.*?\/.*?;base64,/i.test(PATH) ? Buffer.from(PATH.split`,`[1], 'base64') : /^https?:\/\//.test(PATH) ? await (res = await getBuffer(PATH)) : fs.existsSync(PATH) ? (filename = PATH, fs.readFileSync(PATH)) : typeof PATH === 'string' ? PATH : Buffer.alloc(0)
-        let type = await FileType.fromBuffer(data) || {
-            mime: 'application/octet-stream',
-            ext: '.bin'
-        }
+        let type = await FileType.fromBuffer(data) || {mime: 'application/octet-stream', ext: '.bin'}
 
         filename = path.join(__filename, '../src/' + new Date * 1 + '.' + type.ext)
 
         if (data && save) fs.promises.writeFile(filename, data)
-        return {
-            res,
-            filename,
-            size: await getSizeMedia(data),
-            ...type,
-            data
-        }
+        return {res, filename, size: await getSizeMedia(data), ...type, data}
     }
     return shann
 }
@@ -685,7 +403,9 @@ shannStart()
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
     fs.unwatchFile(file)
+
     console.log(chalk.redBright(`Update ${__filename}`))
+
     delete require.cache[file]
     require(file)
 })
