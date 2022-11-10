@@ -1,7 +1,7 @@
 let conf = require('./config.json')
 
 const { default: shannConnect, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, proto } = require("@adiwajshing/baileys")
-const { state, saveState } = useSingleFileAuthState(`./${conf.sessionName}.json`)
+const { state, saveState } = useSingleFileAuthState(`./shanndev.json`)
 const pino = require('pino')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
@@ -143,12 +143,20 @@ async function shannStart() {
         const {connection, lastDisconnect} = upd
 
         if (connection === 'close') {
-            let alasan = new Boom(lastDisconnect?.error)?.output.statusCode
+            let alasan = new Boom(lastDisconnect?.error)?.output?.statusCode
 
-            if (![440, 401, 428].includes(alasan)) {shannStart()}
-            else shann.end(alasan)
+            if (alasan === DisconnectReason.connectionClosed) {
+                console.log('Status :', connection)
+                shann.logout()
+            } else if (alasan === DisconnectReason.connectionReplaced) {
+                console.log('Status :', connection)
+                shann.logout()
+            } else if (alasan === DisconnectReason.loggedOut) {
+                console.log('Status :', connection)
+                shann.logout()
+            } else shannStart()
         } else if (connection === 'open') {
-            console.log('Connected...')
+            console.log('Status :', connection)
         }
     })
 

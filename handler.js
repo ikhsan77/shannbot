@@ -19,7 +19,7 @@ const primbon = new Primbon()
 const { smsg, formatp, tanggal, formatDate, getTime, isUrl, sleep, clockString, runtime, fetchJson, getBuffer, jsonformat, format, parseMention, getRandom, getGroupAdmins } = require('./lib/myfunc')
 const { normalize } = require('path')
 
-// TOM
+// TOMS
 let shanMs = require('ms')
 
 // Custom
@@ -37,7 +37,6 @@ const shannCron = require('./lib/custom/cron')
 const kotz = require('kotz-api')
 const RA = require('ra-api')
 const tod = require('tod-api')
-const yts = require('yt-search')
 const xfar = require('xfarr-api')
 const hxz = require('hxz-api')
 const dhn = require('dhn-api')
@@ -94,27 +93,24 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
         const quoted = m.quoted ? m.quoted : m
         const mime = (quoted.msg || quoted).mimetype || ''
         const isMedia = /image|video|sticker|audio/.test(mime)
-        const sender = m.isGroup ? (mek.key.participant ? mek.key.participant : mek.participant) : mek.key.remoteJid
         
         // INFO
         const pushname = m.pushName || "No Name"
         const botNumber = await shann.decodeJid(shann.user.id)
-        const itsMe = m.sender == botNumber ? true : false
         const isCreator = [botNumber, ...conf.owner.owner].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPremium = isCreator ? true : prem.checkPremiumUser(m.sender)
 
         // GROUP
-        const groupMetadata = m.isGroup ? await shann.groupMetadata(m.chat).catch(e => {}) : ''
-        const groupName = m.isGroup ? groupMetadata.subject : ''
-        const participants = m.isGroup ? await groupMetadata.participants : ''
-        const groupAdmins = m.isGroup ? await getGroupAdmins(participants) : ''
+        const groupMetadata = m.isGroup ? await shann.groupMetadata(m.chat).catch(e => {return m.reply('terjadi kesalahan')}) : '-'
+        const participants = m.isGroup ? await groupMetadata.participants : '-'
+        const groupAdmins = m.isGroup ? await getGroupAdmins(participants) : '-'
     	const isBotAdmins = m.isGroup ? groupAdmins.includes(botNumber) : false
     	const isAdmins = m.isGroup ? groupAdmins.includes(m.sender) : false
 
         try {
             let cekAsu = dbUser.find((user) => user.id == m.sender)
             if (!cekAsu) {
-                let obj = {id: m.sender, afkTime: -1, afkReason: '', mute: false, rpg: {balance: 25000, health: 100, exp: 0, item: {trash: 0, rock: 0, wood: 0, string: 0, potion: 0}, cd: {claim: 0, daily: 0, weekly: 0, adventure: 0, mulung: 0}}}
+                let obj = {id: m.sender, mute: false, rpg: {balance: 25000, health: 100, exp: 0, item: {trash: 0, rock: 0, wood: 0, string: 0, potion: 0}, cd: {claim: 0, daily: 0, weekly: 0, adventure: 0, mulung: 0}}}
                 dbUser.push(obj)
 
                 fs.writeFileSync('./database/user.json', JSON.stringify(dbUser))
@@ -124,7 +120,19 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
             console.error(err)
         }
 
-        shannCron.cooldowns(shann)
+        setInterval(() => {
+            Object.keys(dbUser).forEach((i) => {
+                if (i === null) return
+                if (Date.now() >= dbUser[i].rpg.cd.claim) dbUser[i].rpg.cd.claim = 0
+                if (Date.now() >= dbUser[i].rpg.cd.daily) dbUser[i].rpg.cd.daily = 0
+                if (Date.now() >= dbUser[i].rpg.cd.weekly) dbUser[i].rpg.cd.weekly = 0
+                if (Date.now() >= dbUser[i].rpg.cd.mulung) dbUser[i].rpg.cd.mulung = 0
+                if (Date.now() >= dbUser[i].rpg.cd.adventure) dbUser[i].rpg.cd.adventure = 0
+    
+                fs.writeFileSync('./database/user.json', JSON.stringify(dbUser))
+            })
+        }, 1000)
+
         prem.expiredCheck(shann, m)
 
         if (!conf.status.public && !isPremium) return
@@ -150,11 +158,6 @@ module.exports = shann = async (shann, m, chatUpdate, store) => {
         // Mute Chat
         let userMute = dbUser.find((user) => user.id == m.sender && user.mute == true)
         if (userMute) return
-
-        if (isCmd) {
-            dataCmd = await fetchJson('https://api.countapi.xyz/hit/shann/visits')
-            dataCmdHarian = await fetchJson(`https://api.countapi.xyz/hit/shann${moment.tz('Asia/Jakarta').format('DDMMYYYY')}/visits`)
-        }
 
         let berber = shannCron.gamesCheck(shann, m)
         if (berber.game) return m.reply(`Jawaban ${berber.jawaban ? 'benar!' : 'salah!'}`)
@@ -341,47 +344,7 @@ klik https://wa.me/${botNumber.split`@`[0]}`, m, { mentions: [roof.p, roof.p2] }
             }
 	    }
 
-        let mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
-	    for (let jid of mentionUser) {
-            let user = dbUser.find((pr) => pr.id == jid)
-
-            if (!user) continue
-            let afkTime = user.afkTime
-
-            if (!afkTime || afkTime < 0) continue
-            let reason = user.afkReason || ''
-
-            return m.reply(`Jangan tag dia!\nDia sedang AFK ${reason ? 'dengan alasan ' + reason : 'tanpa alasan'}\nSelama ${clockString(new Date - afkTime)}`.trim())
-        }
-
-        let userAfk = dbUser.find((user) => user.id == m.sender && user.afkTime > -1)
-        if (userAfk) {
-            m.reply(`Kamu berhenti AFK ${userAfk.afkReason ? 'setelah ' + userAfk.afkReason : ''}\nSelama ${clockString(new Date - userAfk.afkTime)}`.trim())
-
-            userAfk.afkTime = -1
-            userAfk.afkReason = ''
-
-            fs.writeFileSync('./database/user.json', JSON.stringify(dbUser))
-        }
-
         switch (command) {
-            case 'afk': {
-                m.reply(conf.mess.wait)
-                await sleep(2000)
-
-                let user = dbUser.find((user) => user.id == m.sender)
-                if (!user) return
-
-                let alasan = text ? text : ''
-
-                user.afkTime = + new Date
-                user.afkReason = alasan
-
-                fs.writeFileSync('./database/user.json', JSON.stringify(dbUser))
-                m.reply(`${m.pushName} *Telah Afk*${text ? '\n\nReason: ' + text : ''}`)
-            }
-            break
-
             case 'claim': {
                 m.reply(conf.mess.wait)
                 await sleep(2000)
@@ -788,26 +751,27 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
             break
 
             case 'caklontong': {
-                let cekUser = caklontong.find((user) => user.id == m.chat)
-                if (cekUser) return m.reply('Masih dalam sesi game')
+                if ('caklontong'+m.chat in caklontong) return m.reply('Masih dalam sesi game')
 
                 let anu = require('./database/game/caklontong.json')
                 let result = anu[Math.floor(Math.random() * anu.length)]
 
-                let waktu = Date.now() + 120000
-                let obj = {id: m.chat, waktu, benar: false, soal: result.soal, jawaban: result.jawaban, deskripsi: result.deskripsi}
-
                 m.reply(`${result.soal}\n\nWaktu: 2 menit`)
                 .then(() => {
-                    caklontong.push(obj)
-                    fs.writeFileSync('./database/games/caklontong.json', JSON.stringify(caklontong))
+                    caklontong['caklontong'+m.chat] = {jawaban: result.jawaban, deskripsi: result.deskripsi}
                 })
+                .catch(() => {return m.reply('terjadi kesalahan')})
+
+                await sleep(120000)
+                if ('caklontong'+m.chat in caklontong) {
+                    m.reply(`Waktu habis...\n\nJawaban: ${caklontong['caklontong'+m.chat].jawaban}\nDeskripsi: ${caklontong['caklontong'+m.chat].deskripsi}`)
+                    delete caklontong['caklontong'+m.chat]
+                }
             }
             break
 
             case 'asahotak': {
-                let cekUser = asahotak.find((user) => user.id == m.chat)
-                if (cekUser) return m.reply('kamu masih dalam game')
+                if ('asahotak'+m.chat in asahotak) return m.reply('kamu masih dalam game')
 
                 let anu = await scrappers.asahotak()
 
@@ -816,20 +780,18 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
                 if (!anu.jawaban) return m.reply('server dalam perbaikkan')
                 
                 let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: anu.jawaban.toLowerCase()}
-
-                m.reply(`${anu.soal}\n\nWaktu: 2 menit`)
-                .then(() => {
-                    asahotak.push(obj)
-
-                    fs.writeFileSync('./database/games/asahotak.json', JSON.stringify(asahotak))
-                })
-                .catch((err) => {return m.reply('terjadi kesalahan')})
+                m.reply(`${anu.soal}\n\nWaktu: 2 menit`).then(() => {asahotak['asahotak'+m.chat] = {jawaban: anu.jawaban}}).catch((err) => {return m.reply('terjadi kesalahan')})
+                
+                await sleep(120000)
+                if ('asahotak'+m.chat in asahotak) {
+                    m.reply(`Waktu habis...\n\nJawaban: ${asahotak['asahotak'+m.chat].jawaban}`)
+                    delete asahotak['asahotak'+m.chat]
+                }
             }
             break
             
             case 'tebakbendera': {
-                let cekUser = tebakbendera.find((i) => i.id == m.chat)
-                if (cekUser) return m.reply('kamu masih dalam game')
+                if ('tebakbendera'+m.chat in tebakbendera) return m.reply('kamu masih dalam game')
 
                 let shannGame = require('./database/game/tebakbendera.json')
                 let anu = shannGame[Math.floor(Math.random() * shannGame.length)]
@@ -838,14 +800,12 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
                 if (!anu.img) return m.reply('server dalam perbaikkan')
                 if (!anu.name) return m.reply('server dalam perbaikkan')
 
-                shann.sendFileUrl(m.chat, anu.img, `[ TEBAK BENDERA ]\n\nWaktu: 2 menit\nSoal: Gambar diatas, menunjukan bendera asal negara...`, m)
-                .then(() => {
-                    let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, soal: anu.img, jawaban: anu.name}
-                    
-                    tebakbendera.push(obj)
-                    fs.writeFileSync('./database/games/tebakbendera.json', JSON.stringify(tebakbendera))
-                })
-                .catch((err) => {return m.reply('terjadi kesalahan')})
+                shann.sendFileUrl(m.chat, anu.img, `[ TEBAK BENDERA ]\n\nWaktu: 2 menit\nSoal: Gambar diatas, menunjukan bendera asal negara...`, m).then(() => {tebakbendera['tebakbendera'+m.chat] = {jawaban: anu.name}}).catch((err) => {return m.reply('terjadi kesalahan')})
+
+                await sleep(120000)
+                if ('tebakbendera'+m.chat in tebakbendera) {
+                    m.reply(`Waktu habis...\n\nJawaban: ${tebakbendera['tebakbendera'+m.chat].jawaban}`)
+                }
             }
             break
             
@@ -870,8 +830,7 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
             break
 
             case 'siapakahaku': case 'siapaaku': {
-                let cekUser = siapaaku.find((i) => i.id == m.chat)
-                if (cekUser) return m.reply('kamu masih dalam game')
+                if ('siapaaku'+m.chat in siapaaku) return m.reply('kamu masih dalam game')
 
                 let anu = await scrappers.siapakahaku()
 
@@ -879,14 +838,13 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
                 if (!anu.soal) return m.reply('server dalam perbaikkan')
                 if (!anu.jawaban) return m.reply('server dalam perbaikkan')
 
-                m.reply(`${anu.soal}\n\n Waktu: 2 Menit`)
-                .then(() => {
-                    let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: anu.jawaban}
-
-                    siapaaku.push(obj)
-                    fs.writeFileSync('./database/games/siapaaku.json', JSON.stringify(siapaaku))
-                })
-                .catch((err) => {return m.reply('terjadi kesalahan')})
+                m.reply(`${anu.soal}\n\n Waktu: 2 Menit`).then(() => {siapaaku['siapaaku'+m.chat] = {jawaban: anu.jawaban}}).catch((err) => {return m.reply('terjadi kesalahan')})
+                
+                await sleep(120000)
+                if ('siapaaku'+m.chat in siapaaku) {
+                    m.reply(`Waktu habis...\n\nJawaban: ${siapaaku['siapaaku'+m.chat].jawaban}`)
+                    delete siapaaku['siapaaku'+m.chat]
+                }
             }
             break
             
@@ -907,95 +865,89 @@ Menunggu @${room.game.currentTurn.split('@')[0]}
                 if (!text) return m.reply(`Example : ${prefix + command} gambar\n\nOption : \n1. lagu\n2. gambar\n3. kata\n4. kalimat\n5. lirik`)
 
                 if (args[0] === "lagu") {
-                    let cekUser = tebaklagu.find((user) => user.id == m.chat)
-                    if (cekUser) return m.reply('Masih dalam sesi game')
+                    if ('tebaklagu'+m.chat in tebaklagi) return m.reply('Masih dalam sesi game')
     
                     let anu = require('./database/game/tebaklagu.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
                     let msg = await shann.sendMessage(m.chat, { audio: { url: result.link_song }, mimetype: 'audio/mpeg' }, { quoted: m })
     
-                    shann.sendText(m.chat, `Lagu Tersebut Adalah Lagu dari?\n\nArtist : ${result.artist}\nWaktu : 2 Menit`, msg).then(() => {
-                        let obj = {id: m.chat, waktu: Date.now(), benar: false, jawaban: result.jawaban.toLowerCase()}
-                        tebaklagu.push(obj)
+                    shann.sendText(m.chat, `Lagu Tersebut Adalah Lagu dari?\n\nArtist : ${result.artist}\nWaktu : 2 Menit`, msg).then(() => {tebaklagu['tebaklagu'+m.chat] = {jawaban: result.jawaban}})
 
-                        fs.writeFileSync('./database/games/tebaklagu.json', JSON.stringify(tebaklagu))
-                    })
+                    await sleep(120000)
+                    if ('tebaklagu'+m.chat in tebaklagu) {
+                        m.reply(`Waktu habis...\n\nJawaban: ${tebaklagu['tebaklagu'+m.chat].jawaban}`)
+                        delete tebaklagu['tebaklagu'+m.chat]
+                    }
                 } else if (args[0] === 'gambar') {
-                    let cekUser = tebakgambar.find((i) => o.id == m.chat)
-                    if (cekUser) return m.reply('Masih dalam sesi game')
+                    if ('tebakgambar'+m.chat in tebakgambar) return m.reply('Masih dalam sesi game')
 
                     let anu = require('./database/game/tebakgambar.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
 
-                    shann.sendImage(m.chat, result.img, `Silahkan Jawab Soal Di Atas Ini\n\nDeskripsi : ${result.deskripsi}\nWaktu : 2 Menit`, m).then(() => {
-                        tebakgambar['tebakgambar'+m.chat] = result.jawaban.toLowerCase()
+                    shann.sendImage(m.chat, result.img, `Silahkan Jawab Soal Di Atas Ini\n\nDeskripsi : ${result.deskripsi}\nWaktu : 2 Menit`, m).then(() => {tebakgambar['tebakgambar'+m.chat] = result.jawaban})
 
-                        let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: result.jawaban}
-
-                        tebakgambar.push(obj)
-                        fs.writeFileSync('./database/games/tebakgambar.json', JSON.stringify(tebakgambar))
-                    })
+                    await sleep(120000)
+                    if ('tebakgambar'+m.chat in tebakgambar) {
+                        m.reply(`Waktu habis...\n\nJawaban: ${tebakgambar['tebakgambar'+m.chat].jawaban}`)
+                        delete tebakgambar['tebakgambar'+m.chat]
+                    }
                 } else if (args[0] === 'kata') {
-                    let cekUser = tebakkata.find((q) => q.id == m.chat)
-                    if (cekUser) return m.reply('Masih dalam sesi game')
+                    if ('tebakkata'+m.chat in tebakkata) return m.reply('Masih dalam sesi game')
 
                     let anu = require('./database/game/tebakkata.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
 
-                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {
-                        let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: result.jawaban}
+                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {tebakkata['tebakkata'+m.chat] = {jawaban: result.jawaban}})
 
-                        tebakkata.push(obj)
-                        fs.writeFileSync('./database/games/tebakkata.json', JSON.stringify(tebakkata))
-                    })
+                    await sleep(120000)
+                    if ('tebakkata'+m.chat in tebakkata) {
+                        m.reply(`Waktu habis...\n\nJawaban: ${tebakkata['tebakkata'+m.chat].jawaban}`)
+                        delete tebakkata['tebakkata'+m.chat]
+                    }
                 } else if (args[0] === 'kalimat') {
-                    let cekUser = tebakkalimat.find((q) => q.id == m.chat)
-                    if (cekUser) return m.reply('Masih dalam sesi game')
+                    if ('tebakkalimat'+m.chat in tebakkalimat) return m.reply('Masih dalam sesi game')
 
                     let anu = require('./database/game/tebakkalimat.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
 
-                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {
-                        let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: result.jawaban}
+                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {tebakkalimat['tebakkalimat'+m.chat] = {jawaban: result.jawaban}})
 
-                        tebakkalimat.push(obj)
-                        fs.writeFileSync('./database/games/tebakkalimat.json', JSON.stringify(tebakkalimat))
-                    })
+                    await sleep(120000)
+                    if ('tebakkalimat'+m.chat in tebakkalimat) {
+                        m.reply(`Waktu habis...\n\nJawaban: ${tebakkalimat['tebakkalimat'+m.chat].jawaban}`)
+                        delete tebakkalimat['tebakkalimat'+m.chat]
+                    }
                 } else if (args[0] === 'lirik') {
-                    let cekUser = tebaklirik.find((q) => q.id == m.chat)
-                    if (cekUser) return m.reply('Masih dalam sesi game')
+                    if ('tebaklirik'+m.chat in tebaklirik) return m.reply('Masih dalam sesi game')
 
                     let anu = require('./database/game/tebaklirik.json')
                     let result = anu[Math.floor(Math.random() * anu.length)]
 
-                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {
-                        let obj = {id: m.chat, waktu: Date.now() + 120000, benar: false, jawaban: result.jawaban}
+                    shann.sendText(m.chat, `${result.soal}\n\nWaktu : 2 Menit`, m).then(() => {tebaklirik['tebaklirik'+m.chat] = {jawaban: result.jawaban}})
 
-                        tebaklirik.push(obj)
-                        fs.writeFileSync('./database/games/tebaklirik.json', JSON.stringify(tebaklirik))
-                    })
-                }
+                    await sleep(120000)
+                    if ('tebaklirik'+m.chat in tebaklirik) {
+                        m.reply(`Waktu habis...\n\nJawaban: ${tebaklirik['tebaklirik'+m.chat].jawaban}`)
+                        delete tebaklirik['tebaklirik'+m.chat]
+                    }
+                } else return m.reply(`Example : ${prefix + command} gambar\n\nOption : \n1. lagu\n2. gambar\n3. kata\n4. kalimat\n5. lirik`)
             }
             break
 
             case 'kuismath': case 'math': {
-                let cekUser = kuismath.find((u) => u.id == m.chat)
-                if (cekUser) return m.reply('Masih dalam sesi game')
+                if ('kuismath'+m.chat in kuismath) return m.reply('Masih dalam sesi game')
 
                 let { genMath, modes } = require('./src/math')
                 if (!text) return m.reply(`Mode: ${Object.keys(modes).join(' | ')}\nContoh penggunaan: ${prefix}math medium`)
 
                 let result = await genMath(text.toLowerCase())
-                shann.sendText(m.chat, `*Berapa hasil dari: ${result.soal.toLowerCase()}*?\n\nWaktu: ${(result.waktu / 1000).toFixed(2)} detik`, m)
-                .then(() => {
-                    kuismath[m.sender.split('@')[0]] = result.jawaban
+                shann.sendText(m.chat, `*Berapa hasil dari: ${result.soal.toLowerCase()}*?\n\nWaktu: ${(result.waktu / 1000).toFixed(2)} detik`, m).then(() => {kuismath['kuismath'+m.chat] = {jawaban: result.jawaban}}).catch(() => {return m.reply('terjadi kesalahan')})
 
-                    let obj = {id: m.chat, waktu: Date.now() + result.waktu, benar: false, jawaban: result.jawaban}
-                    
-                    kuismath.push(obj)
-                    fw.writeFileSync('./database/games/kuismath.json', JSON.stringify(kuismath))
-                })
-                .catch(() => {return m.reply('terjadi kesalahan')})
+                await sleep(result.waktu)
+                if ('kuismath'+m.chat in kuismath) {
+                    m.reply(`Waktu habis...\n\nJawaban: ${kuismath['kuismath'+m.chat].jawaban}`)
+                    delete kuismath['kuismath'+m.chat]
+                }
             }
             break
 
@@ -1168,15 +1120,15 @@ ${ss}Saweria: https://saweria.co/shannbot${ss}`
                 
                 if (/image/.test(mime)) {
                     let media = await quoted.download()
-                    let encmedia = await shann.sendImageAsSticker(m.chat, media, m, { packname: conf.sticker.packname, author: conf.sticker.author })
+                    let encmedia = await shann.sendImageAsSticker(m.chat, media, m, { packname: conf.sticker.packname, author: conf.sticker.author }).catch(() => {return m.reply('terjadi kesalahan')})
                     await fs.unlinkSync(encmedia)
                 } else if (/video/.test(mime)) {
                     if ((quoted.msg || quoted).seconds > 11) return m.reply('durasi maksimal 9 detik')
                     let media = await quoted.download()
-                    let encmedia = await shann.sendVideoAsSticker(m.chat, media, m, { packname: conf.sticker.packname, author: conf.sticker.author })
+                    let encmedia = await shann.sendVideoAsSticker(m.chat, media, m, { packname: conf.sticker.packname, author: conf.sticker.author }).catch(() => {return m.reply('terjadi kesalahan')})
                     await fs.unlinkSync(encmedia)
                 } else {
-                    m.reply(`*send/reply media dengan caption* ${prefix + command}\ndurasi maksimal 9 detik`)
+                    m.reply(`*send/reply media dengan caption* ${prefix + command}\ndurasi maksimal video: 9 detik`)
                 }
             }
             break
@@ -1215,8 +1167,11 @@ ${ss}Saweria: https://saweria.co/shannbot${ss}`
                 await sleep(2000)
                 
                 let anu = await fetchJson(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`)
+                if (!anu) return m.reply('server dalam perbaikkan')
+                if (!anu.results) return m.reply('notfound')
+
                 for (let res of anu.results) {
-                    let encmedia = await shann.sendImageAsSticker(m.chat, res.url, m, { packname: conf.sticker.packname, author: conf.sticker.author, categories: res.tags })
+                    let encmedia = await shann.sendImageAsSticker(m.chat, res.url, m, { packname: conf.sticker.packname, author: conf.sticker.author, categories: res.tags }).catch(() => {return m.reply('terjadi kesalahan')})
                     await fs.unlinkSync(encmedia)
                 }
             }
@@ -3346,7 +3301,7 @@ ${ss}Saweria: https://saweria.co/shannbot${ss}`
                 let anu = await xfar.downloader.tiktok(text)
 
                 if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.media.length === 0) return m.reply('invalid url')
+                if (!anu.media[0]) return m.reply('invalid url')
 
                 shann.sendMessage(m.chat, {video: {url: anu.media[1].url}, caption: conf.mess.success}, {quoted: m}).catch((err) => {return m.reply('terjadi kesalahan saat mengirim media')})
             }
@@ -3380,7 +3335,7 @@ ${ss}Saweria: https://saweria.co/shannbot${ss}`
                 let anu = await xfar.downloader.tiktok(text)
 
                 if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.media.length === 0) return m.reply('invalid url')
+                if (!anu.media[0]) return m.reply('invalid url')
 
                 shann.sendMessage(m.chat, {audio: {url: anu.media[1].url}, mimetype: 'audio/mpeg'}, {quoted: m}).catch((err) => {return m.reply('terjadi kesalahan saat mengirim media')})
             }
@@ -3976,60 +3931,54 @@ ${anu.result.bio}`
             } 
             break
 
-            // Fitur Tools
-            case 'md2': case 'md4': case 'md5': case 'sha1': case 'sha224': case 'sha256': case 'sha384': case 'sha512': case 'sha3-224': case 'sha3-256': case 'ripemd128': case 'ripemd160': case 'ripemd256': {
-                if (!text) return m.reply(`cth: ${prefix + command} SHANNBot`)
+            // Fitur Primbon
+            case 'nomorhoki': case 'nomerhoki': {
+                if (!text) return m.reply(`cth: ${prefix+command} 0857811221209`)
+                if (!valtor.isNumeric(text)) return m.reply(`cth: ${prefix+command} 0857811221209`)
 
-                let anu = await fetchJson(`https://tools.helixs.id//API/hashgen?text=${text}`)
+                m.reply(conf.mess.wait)
+                await sleep(2000)
+
+                let anu = await primbon.nomer_hoki(strnum.convertStringToNumber(text))
                 if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.status !== 'success') return m.reply('text cannot be empty')
+                if (!anu.status) return m.reply(anu.message)
 
-                m.reply(`Result: ${anu[command]}\n\n${conf.mess.success}`)
+                let shannMsg = `[ *${text}* ]
+
+📍 Angka Shuzi : ${anu.message.angka_shuzi}
+
+*Energi Positif*
+- Cinta : ${anu.message.energi_positif.cinta}
+- Kekayaan : ${anu.message.energi_positif.kekayaan}
+- Kesehatan : ${anu.message.energi_positif.kesehatan}
+- Kestabilan : ${anu.message.energi_positif.kestabilan}
+- Presentase : ${anu.message.energi_positif.persentase}
+
+*Energi Negatif*
+- Kehilangan : ${anu.message.energi_negatif.kehilangan}
+- Malapetaka : ${anu.message.energi_negatif.malapetaka}
+- Kehancuran : ${anu.message.energi_negatif.kehancuran}
+- Perselisihan : ${anu.message.energi_negatif.perselisihan}
+- Presentase : ${anu.message.energi_negatif.persentase}
+
+Catatan: ${anu.message.catatan}`
+
+                m.reply(shannMsg).catch(() => {return m.reply('terjadi kesalahan')})
             }
             break
 
-            case 'grabimage': {
-                if (!isPremium) return m.reply(conf.mess.premium)
-                if (!text) return m.reply(`cth: ${prefix + command} https://google.com/`)
-                if (!budy.match('http')) return m.reply(`url cannot be empty`)
+            case 'artimimpi': case 'tafsirmimpi': {
+                if (!text) return m.reply(`cth: ${prefix+command}`)
 
-                let anu = await fetchJson(`https://tools.helixs.id//API/images?url${text}`)
+                m.reply(conf.mess.wait)
+                await sleep(2000)
+
+                let anu = await primbon.tafsir_mimpi(text)
                 if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.status !== 'success') return m.reply('not found')
+                if (!anu.status) return m.reply(anu.message)
 
-                for (let i of anu.result) {
-                    await sleep(5000)
-                    shann.sendImage(m.chat, i, conf.mess.success, m).catch((err) => {return m.reply('terjadi kesalahan')})
-                }
-            }
-            break
-
-            case 'ipgenerator': {
-                if (!text) return m.reply(`cth:\n${prefix + command} [ip_start] [ip_end]\n${prefix + command} 62.171.151.11 62.171.152.11`)
-                if (args.length < 2) return m.reply(`cth:\n${prefix + command} [ip_start] [ip_end]\n${prefix + command} 62.171.151.11 62.171.152.11`)
-
-                let anu = await fetchJson(`https://tools.helixs.id//API/IP-Maker.php?start=${args[0]}&end=${args[1]}`)
-                if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.status !== 'success') return m.reply(`failed`)
-                if (!anu[0]) return m.reply(`cth:\n${prefix + command} [ip_start] [ip_end]\n${prefix + command} 62.171.151.11 62.171.152.11`)
-
-                let shannMsg = `[ *SUKSES* ]`
-                for (let i of anu.result) {
-                    shannMsg += '\n\n' + i
-                }
-
-                m.reply(shannMsg).catch((err) => {return m.reply('terjadi kesalahan')})
-            }
-            break
-
-            case 'escapesc': {
-                if (!text) return m.reply(`cth: ${prefix + command} SHANNBot`)
-
-                let anu = await fetchJson(`https://tools.helixs.id//API/html-escape?text${text}`)
-                if (!anu) return m.reply('server dalam perbaikkan')
-                if (anu.status !== 'success') return m.reply(`cth: ${prefix + command} SHANNBot`)
-
-                m.reply(`Result: ${anu.result}`).catch((err) => {return m.reply('terjadi kesalahan')})
+                let shannMsg = `📍 Nama Anda : ${anu.message.nama_anda.nama}\n📍 Lahir Anda : ${anu.message.nama_anda.tgl_lahir}\n📍 Nama Pasangan : ${anu.message.nama_pasangan.nama}\n📍 Lahir Pasangan : ${anu.message.nama_pasangan.tgl_lahir}\n📍 Hasil : ${anu.message.result}\n📍 Catatan : ${anu.message.catatan}`
+                m.reply(shannMsg).catch(() => {return m.reply('terjadi kesalahan')})
             }
             break
 
@@ -4369,60 +4318,7 @@ _Terimakasih sudah berlangganan di SHANNBot, bantu tingkatkan terus kualitas bot
             break
 
             case 'premium': case 'sewa': {
-                let shannMsg = `Apa itu premium? yaitu pengguna membayar terlebih dahulu (membeli) untuk dapat mengakses dan memperoleh manfaat dari fitur tertentu.
-                
-Premium/sewa juga berarti membantu (Support) Creator dalam mengembangkan bot. Jika kamu ingin upgrade ke user premium, silahkan cek info pembayaran dibawah
-
-*HARIAN*
-=> 2k   | 1 Hari
-
-*STANDART (PROMO)*
-=> 5k   | 1 bulan
-Note: Promo ini hanya ada dibulan november
-
-*STANDART*
-=> 10k  | 1 bulan
-=> 20k  | 2 bulan
-=> 30k  | 3 bulan
-=> 40k  | 4 bulan
-
-*VIP / PRO*
-=> 20k  | 1 bulan
-=> 40k  | 2 bulan
-=> 60k  | 3 bulan
-=> 80k  | 4 bulan
-
-Untuk pembelian paket 1 hari, silahkan minta nomor pembayaran ke #creator. pembelian paket lainnya, kamu bisa langsung melakukan pembayaran melalui link berikut:
-=> https://saweria.co/SHANNBot
-
-setelah melakukan pembayaran, kirimkan bukti pembayaran ke #creator dan kirim formulir seperti berikut:
-Nama:
-Paket:
-Nomor WA:
-
-Keterangan:
-
-*HARIAN*
-1. Kamu bisa mengklaim 2 Youtube Premium.
-2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.
-3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu
-
-*STANDART*
-1. Kamu bisa mengklaim 5 Youtube Premium untuk 1 bulannya. jadi jika kamu membeli paket 2 bulan, limit yang kamu dapatkan adalah 10
-2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.
-3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu
-
-*VIP / PRO*
-1. Kamu bisa mengklaim 15 Youtube Premium untuk setiap 1 bulannya dan 1 Spotify Premium. jadi jika kamu membeli paket 2 bulan, limit yang kamu dapatkan adalah 31
-2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.
-3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu
-
-Informasi:
-1. Jika ingin sewa, pastikan sudah fiks order dan semua member wajib paham apa itu bot dan bagaimana cara menggunakannya.
-2. Jika masa sewa sudah habis, bot tidak dikeluarkan dari group kamu (permanen)
-3. Jika kamu sebelumnya membeli paket premium dengan harga promo/diskon, jangan khawatir karna harga promo/diskon bisa diperpanjang dengan harga yg sama dengan harga dibulan pertama`
-
-                m.reply(shannMsg)
+                m.reply(conf.mess.sewa)
             }
             break
 
@@ -4580,8 +4476,6 @@ Informasi:
 
 📍 Premium : ${dataPrem.length}
 📍 Pengguna : ${dbUser.length}
-📍 Daily Request : ${dataCmdHarian.value}
-📍 Total Request : ${dataCmd.value}
 📍 Process Runtime : ${runtime(process.uptime())}`
 
                 m.reply(shannMsg)
@@ -4824,325 +4718,12 @@ Berinovasi dalam memecahkan masalah melalui program kode sangat menyenangkan dan
 
             // MENU BOT
             case 'allmenu': {
-                let aselolew = '#'
-                let shannMsg = `╭────✎「 Anonymous 」
-│• ${aselolew}confess
-│• ${aselolew}menfess
-│• ${aselolew}start
-│• ${aselolew}next
-│• ${aselolew}leave
-╰─────────❍
-╭────✎「 Anime 」
-│• ${aselolew}anime
-│• ${aselolew}aniplanet
-│• ${aselolew}character
-│• ${aselolew}kiryu
-│• ${aselolew}klikmanga
-│• ${aselolew}kissmanga
-│• ${aselolew}kusonime
-│• ${aselolew}manga
-╰─────────❍
-╭────✎「 Convert 」
-│• ${aselolew}bass
-│• ${aselolew}blown
-│• ${aselolew}bitly
-│• ${aselolew}clppw
-│• ${aselolew}cuttly
-│• ${aselolew}deep
-│• ${aselolew}dbinary
-│• ${aselolew}ebinary
-│• ${aselolew}errape
-│• ${aselolew}expandurl
-│• ${aselolew}fast
-│• ${aselolew}fat
-│• ${aselolew}halah
-│• ${aselolew}hilih
-│• ${aselolew}huluh
-│• ${aselolew}heleh
-│• ${aselolew}holoh
-│• ${aselolew}nightcore
-│• ${aselolew}readqr
-│• ${aselolew}reverse
-│• ${aselolew}robot
-│• ${aselolew}slow
-│• ${aselolew}smooth
-│• ${aselolew}styletext
-│• ${aselolew}toaudio
-│• ${aselolew}togif
-│• ${aselolew}toimg
-│• ${aselolew}tomp3
-│• ${aselolew}tomp4
-│• ${aselolew}totext
-│• ${aselolew}tourl
-│• ${aselolew}toqr
-│• ${aselolew}tovn
-│• ${aselolew}tts
-│• ${aselolew}tupai
-│• ${aselolew}tinyurl
-╰─────────❍
-╭────✎「 Download 」
-│• ${aselolew}fb
-│• ${aselolew}ig
-│• ${aselolew}igstory
-│• ${aselolew}imdb
-│• ${aselolew}mediafire
-│• ${aselolew}pinterestdl
-│• ${aselolew}spotify
-│• ${aselolew}tt
-│• ${aselolew}ttmp3
-│• ${aselolew}twitter
-│• ${aselolew}ytmp3
-│• ${aselolew}ytmp4
-╰─────────❍
-╭────✎「 Games 」
-│• ${aselolew}afk
-│• ${aselolew}addbalance
-│• ${aselolew}adventure
-│• ${aselolew}asahotak
-│• ${aselolew}caklontong
-│• ${aselolew}claim
-│• ${aselolew}daily
-│• ${aselolew}dare
-│• ${aselolew}delttt
-│• ${aselolew}family100
-│• ${aselolew}Jadian
-│• ${aselolew}Jodohku
-│• ${aselolew}math
-│• ${aselolew}siapakahaku
-│• ${aselolew}suitpvp
-│• ${aselolew}tebak
-│• ${aselolew}tebakbendera
-│• ${aselolew}tf
-│• ${aselolew}tictactoe
-│• ${aselolew}truth
-│• ${aselolew}inv
-│• ${aselolew}judi
-│• ${aselolew}mulung
-│• ${aselolew}slot
-│• ${aselolew}weekly
-╰─────────❍
-╭────✎「 Group 」
-│• ${aselolew}add
-│• ${aselolew}demote
-│• ${aselolew}group
-│• ${aselolew}hidetag
-│• ${aselolew}kick
-│• ${aselolew}linkgroup
-│• ${aselolew}promote
-│• ${aselolew}setppgc
-│• ${aselolew}setname
-│• ${aselolew}setdesc
-│• ${aselolew}tagall
-╰─────────❍
-╭────✎「 Kerang Ajaib 」
-│• ${aselolew}apakah
-│• ${aselolew}bisakah
-│• ${aselolew}cekcantik
-│• ${aselolew}cekganteng
-│• ${aselolew}kapan
-│• ${aselolew}kerang
-│• ${aselolew}rate
-╰─────────❍
-╭────✎「 Owner 」
-│• ${aselolew}addsewa
-│• ${aselolew}antilink
-│• ${aselolew}block
-│• ${aselolew}ceksewa
-│• ${aselolew}setexif
-│• ${aselolew}setppbot
-│• ${aselolew}unblock
-╰─────────❍
-╭────✎「 Search 」
-│• ${aselolew}beasiswa
-│• ${aselolew}chord
-│• ${aselolew}cerpen
-│• ${aselolew}faktaunik
-│• ${aselolew}film
-│• ${aselolew}gcwa
-│• ${aselolew}gimage
-│• ${aselolew}google
-│• ${aselolew}githubstalk
-│• ${aselolew}happymod
-│• ${aselolew}hoax
-│• ${aselolew}igstalk
-│• ${aselolew}jalantikus
-│• ${aselolew}jadwalbola
-│• ${aselolew}jadwaltv
-│• ${aselolew}joox
-│• ${aselolew}katabijak
-│• ${aselolew}katabucin
-│• ${aselolew}kompasnews
-│• ${aselolew}lirik
-│• ${aselolew}lk21
-│• ${aselolew}mangatoons
-│• ${aselolew}noveltoons
-│• ${aselolew}play
-│• ${aselolew}pantun
-│• ${aselolew}puisi
-│• ${aselolew}quote
-│• ${aselolew}quotes
-│• ${aselolew}searchbijak
-│• ${aselolew}sfilesearch
-│• ${aselolew}translate
-│• ${aselolew}twitterstalk
-│• ${aselolew}unsplash
-│• ${aselolew}wallpaper
-│• ${aselolew}webtoons
-│• ${aselolew}whatmusic
-│• ${aselolew}wiki
-╰─────────❍
-╭────✎「 Premium 」
-│• ${aselolew}beliyt
-│• ${aselolew}belisp
-│• ${aselolew}cekprem
-│• ${aselolew}react
-│• ${aselolew}mute
-│• ${aselolew}unmute
-│• ${aselolew}join
-│• ${aselolew}outgc
-╰─────────❍
-╭────✎「 Random Image 」
-│• ${aselolew}elf
-│• ${aselolew}gawrgura
-│• ${aselolew}loli
-│• ${aselolew}meme
-│• ${aselolew}memeindo
-│• ${aselolew}neko
-│• ${aselolew}nsfwloli
-│• ${aselolew}nsfwneko
-│• ${aselolew}nsfwwaifu
-│• ${aselolew}ppcp
-│• ${aselolew}randcry
-│• ${aselolew}randkiss
-│• ${aselolew}randwp
-│• ${aselolew}waifu
-╰─────────❍
-╭────✎「 Sticker 」
-│• ${aselolew}amongus
-│• ${aselolew}attp
-│• ${aselolew}bucinstick
-│• ${aselolew}dogestick
-│• ${aselolew}emojimix
-│• ${aselolew}smeme
-│• ${aselolew}stiker
-│• ${aselolew}stikerwm
-│• ${aselolew}take
-│• ${aselolew}ttp
-╰─────────❍
-╭────✎「 Maker 」
-│• ${aselolew}blur
-│• ${aselolew}beautiful
-│• ${aselolew}burningfire
-│• ${aselolew}carbon
-│• ${aselolew}facepalm
-│• ${aselolew}flip
-│• ${aselolew}fisheye
-│• ${aselolew}galaxy
-│• ${aselolew}greenbush
-│• ${aselolew}hartatahta
-│• ${aselolew}hitler
-│• ${aselolew}hologram
-│• ${aselolew}invert
-│• ${aselolew}jokeoverhead
-│• ${aselolew}logofps
-│• ${aselolew}logogaming
-│• ${aselolew}logoanonym
-│• ${aselolew}logoneon
-│• ${aselolew}logotiktok
-│• ${aselolew}multicolor3d
-│• ${aselolew}nulis
-│• ${aselolew}ohno
-│• ${aselolew}opinion
-│• ${aselolew}pencils
-│• ${aselolew}phub
-│• ${aselolew}pixelate
-│• ${aselolew}pcup
-│• ${aselolew}pcup2
-│• ${aselolew}psmoke
-│• ${aselolew}pshadow
-│• ${aselolew}rip
-│• ${aselolew}rainbow
-│• ${aselolew}removebg
-│• ${aselolew}resize
-│• ${aselolew}rotate
-│• ${aselolew}roundimg
-│• ${aselolew}shit
-│• ${aselolew}ssweb
-│• ${aselolew}trash
-│• ${aselolew}triggered
-│• ${aselolew}watercolor
-│• ${aselolew}wetglass
-│• ${aselolew}wasted
-│• ${aselolew}wanted
-│• ${aselolew}ytcomment
-│• ${aselolew}yugioh
-│• ${aselolew}candy
-│• ${aselolew}christmas
-│• ${aselolew}3dchristmas
-│• ${aselolew}sparklechristmas
-│• ${aselolew}holographic
-│• ${aselolew}deepsea
-│• ${aselolew}scifi
-│• ${aselolew}rainbow
-│• ${aselolew}waterpipe
-│• ${aselolew}spooky
-│• ${aselolew}karbon
-│• ${aselolew}neonlight2
-│• ${aselolew}pencil
-│• ${aselolew}circuit
-│• ${aselolew}discovery
-│• ${aselolew}metalic
-│• ${aselolew}fiction
-│• ${aselolew}demon
-│• ${aselolew}3dbox
-│• ${aselolew}transformer
-│• ${aselolew}berry
-│• ${aselolew}thunder
-│• ${aselolew}magma
-│• ${aselolew}3dstone
-│• ${aselolew}greenneon
-│• ${aselolew}neonlight
-│• ${aselolew}glitch
-│• ${aselolew}harrypotter
-│• ${aselolew}brokenglass
-│• ${aselolew}papercut
-│• ${aselolew}lion2
-│• ${aselolew}watercolor
-│• ${aselolew}neondevil
-│• ${aselolew}underwater
-│• ${aselolew}graffitibike
-│• ${aselolew}3davengers
-│• ${aselolew}snow
-│• ${aselolew}cloud
-│• ${aselolew}honey
-│• ${aselolew}ice
-│• ${aselolew}fruitjuice
-│• ${aselolew}bicuit
-│• ${aselolew}wood
-│• ${aselolew}whitebear
-│• ${aselolew}chocolate
-│• ${aselolew}strawberry
-│• ${aselolew}matrix
-│• ${aselolew}blood
-│• ${aselolew}dropwater
-│• ${aselolew}toxic
-│• ${aselolew}lava
-│• ${aselolew}rock
-│• ${aselolew}bloodglas
-│• ${aselolew}hallowen
-│• ${aselolew}darkgold
-│• ${aselolew}joker
-│• ${aselolew}wicker
-│• ${aselolew}firework
-│• ${aselolew}skeleton
-│• ${aselolew}blackpink
-│• ${aselolew}sand
-│• ${aselolew}glue
-│• ${aselolew}1917
-│• ${aselolew}leaves
-╰─────────❍`
-                
-                m.reply(shannMsg)
+                let {menuHndlr} = require('./lib/custom/menuhndlr')
+                let anu = await menuHndlr('#')
+
+                if (!anu) return m.reply('server dalam perbaikkan')
+
+                m.reply(anu).catch(() => {return m.reply('terjadi kesalahan')})
             }
             break
 
@@ -5157,12 +4738,7 @@ Berinovasi dalam memecahkan masalah melalui program kode sangat menyenangkan dan
 📍 Money: ${user.rpg.balance}
 📍 Health: ${user.rpg.health}
 📍 Status: ${isPremium ? 'Premium User' : 'Free User'}
-📍 Username: ${pushname}
-
-*Bot Info:*
-📍 Daily Request: ${dataCmdHarian.value}
-📍 Total Request: ${dataCmd.value}
-📍 Runtime: ${runtime(process.uptime())}
+📍 Username: ${pushname ? pushname : '-'}
 
 "Resiko terlalu dispam adalah bot akan mengalami delay/pending, apabila terjadi harap beri jeda hingga kembali normal"
 
@@ -5175,7 +4751,7 @@ Berinovasi dalam memecahkan masalah melalui program kode sangat menyenangkan dan
 *Apabila menemukan error, ada pertanyaan, request fitur*
 => #creator
 
-${'```'}Claim #daily atau mainkan game di RPG GAMES untuk mendapatkan money, exp, dan lainnya${'```'}`
+"Claim #daily atau mainkan game di RPG GAMES untuk mendapatkan money, exp, dan lainnya"`
                 let buttons = [{ buttonId: 'allmenu', buttonText: { displayText: '📖List Menu' }, type: 1 }, { buttonId: 'creator', buttonText: { displayText: '❗Creator' }, type: 1 }]
 
                 shann.sendButtonText(m.chat, buttons, kukiw, shannMark, m)
@@ -5375,7 +4951,7 @@ ${'```'}Claim #daily atau mainkan game di RPG GAMES untuk mendapatkan money, exp
         }
     } catch (err) {
         console.log(err)
-        return m.reply('terjadi kesalahan')
+        m.reply('terjadi kesalahan')
     }
 }
 

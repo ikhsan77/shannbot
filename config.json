@@ -1,1 +1,50 @@
-{"api":{"lolhuman":{"url":"https://api.lolhuman.xyz/api","apikey":"SHANNBot-APIKEY"}},"owner":{"owner":["6285781183473","6287872629912","6288809276695","6281586086597"],"ownernomer":"6285781183473","creator":["6285781183473"]},"sticker":{"packname":"Fajarara","author":"@shannbot.ofc"},"sessionName":"shanndev","prefa":["",".","!","#","&"],"mess":{"wait":"*SEDANG DIPROSES!*\n\n• beri jeda maks 4 detik\n• jika gagal silahkan ulangi\n• jika error tolong hubungi #creator\n\n• Ingin bisa akses semua fitur dan juga add bot kegrup kamu? Cek info di #premium","success":"_Done by SHANNBot_","premium":"_Fitur ini hanya bisa digunakan jika kamu user premium, ingin mendaftar kepremium? Kirim #premium untuk melihat daftar paket_","botAdmin":"_Bot harus menjadi admin terlebih dahulu_","owner":"_Fitur hanya bisa digunakan oleh owner_","group":"_Fitur hanya bisa digunakan di dalam group_","admin":"_Fitur hanya bisa digunakan oleh admin group_","private":"_Fitur hanya bisa digunakan di private chat_"},"group":{"anitilink":true},"status":{"bot":true,"public":true}}
+{
+    "api": {
+        "lolhuman": {
+            "url": "https://api.lolhuman.xyz/api",
+            "apikey": "SHANNBot-APIKEY"
+        }
+    },
+    "owner": {
+        "owner": [
+            "6285781183473",
+            "6287872629912",
+            "6288809276695",
+            "6281586086597"
+        ],
+        "ownernomer": "6285781183473",
+        "creator": [
+            "6285781183473"
+        ]
+    },
+    "sticker": {
+        "packname": "Fajarara",
+        "author": "@shannbot.ofc"
+    },
+    "sessionName": "shanndev",
+    "prefa": [
+        "",
+        ".",
+        "!",
+        "#",
+        "&"
+    ],
+    "mess": {
+        "wait": "*SEDANG DIPROSES!*\n\n• beri jeda maks 4 detik\n• jika gagal silahkan ulangi\n• jika error tolong hubungi #creator\n\n• Ingin bisa akses semua fitur dan juga add bot kegrup kamu? Cek info di #premium",
+        "success": "_Done by SHANNBot_",
+        "premium": "_Fitur ini hanya bisa digunakan jika kamu user premium, ingin mendaftar kepremium? Kirim #premium untuk melihat daftar paket_",
+        "botAdmin": "_Bot harus menjadi admin terlebih dahulu_",
+        "owner": "_Fitur hanya bisa digunakan oleh owner_",
+        "group": "_Fitur hanya bisa digunakan di dalam group_",
+        "admin": "_Fitur hanya bisa digunakan oleh admin group_",
+        "private": "_Fitur hanya bisa digunakan di private chat_",
+        "sewa": "Apa itu premium? yaitu pengguna membayar terlebih dahulu (membeli) untuk dapat mengakses dan memperoleh manfaat dari fitur tertentu.\n\nPremium/sewa juga berarti membantu (Support) Creator dalam mengembangkan bot. Jika kamu ingin upgrade ke user premium, silahkan cek info pembayaran dibawah\n\n*HARIAN*\n=> 2k   | 1 Hari\n\n*STANDART (PROMO)*\n=> 5k   | 1 bulan\nNote: Promo ini hanya ada dibulan november\n\n*STANDART*\n=> 10k  | 1 bulan\n=> 20k  | 2 bulan\n=> 30k  | 3 bulan\n=> 40k  | 4 bulan\n\n*VIP / PRO*\n=> 20k  | 1 bulan\n=> 40k  | 2 bulan\n=> 60k  | 3 bulan\n=> 80k  | 4 bulan\n\nUntuk pembelian paket 1 hari, silahkan minta nomor pembayaran ke #creator. pembelian paket lainnya, kamu bisa langsung melakukan pembayaran melalui link berikut:\n=> https://saweria.co/SHANNBot\n\nsetelah melakukan pembayaran, kirimkan bukti pembayaran ke #creator dan kirim formulir seperti berikut:\nNama:\nPaket:\nNomor WA:\n\nKeterangan:\n\n*HARIAN*\n1. Kamu bisa mengklaim 2 Youtube Premium.\n2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.\n3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu\n\n*STANDART*\n1. Kamu bisa mengklaim 5 Youtube Premium untuk 1 bulannya. jadi jika kamu membeli paket 2 bulan, limit yang kamu dapatkan adalah 10\n2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.\n3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu\n\n*VIP / PRO*\n1. Kamu bisa mengklaim 15 Youtube Premium untuk setiap 1 bulannya dan 1 Spotify Premium. jadi jika kamu membeli paket 2 bulan, limit yang kamu dapatkan adalah 31\n2. Kamu bisa mengakses semua fitur yang ada pada bot, tanpa ada batas penggunaan harian.\n3. Kamu bisa mengundang bot untuk bergabung ke group whatsapp kamu\n\nInformasi:\n1. Jika ingin sewa, pastikan sudah fiks order dan semua member wajib paham apa itu bot dan bagaimana cara menggunakannya.\n2. Jika masa sewa sudah habis, bot tidak dikeluarkan dari group kamu (permanen)\n3. Jika kamu sebelumnya membeli paket premium dengan harga promo/diskon, jangan khawatir karna harga promo/diskon bisa diperpanjang dengan harga yg sama dengan harga dibulan pertama"
+    },
+    "group": {
+        "anitilink": true
+    },
+    "status": {
+        "bot": true,
+        "public": true
+    }
+}
